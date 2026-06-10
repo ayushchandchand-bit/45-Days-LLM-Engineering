@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Basics of Software Engineering — from a Software Engineer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  /* ============================================================
+     THEME — Softpro brand: orange · cream · white · dark-grey
+     ============================================================ */
+  :root {
+    --bg: #211f1d;            /* deep warm dark-grey stage behind slides */
+    --slide-bg: #ffffff;      /* white slides */
+    --cream: #fbf1e6;         /* cream fills / pills */
+    --cream-2: #fdf8f1;
+    --ink: #2c2a28;           /* dark-grey headings */
+    --ink-soft: #4f463f;      /* body copy */
+    --muted: #8a7f73;         /* warm muted grey */
+    --line: #efe3d4;          /* warm border */
+    --primary: #e8590c;       /* Softpro orange */
+    --primary-2: #fb8b3d;     /* lighter orange */
+    /* topic accents — warm, on-brand family (+ one cool steel for contrast) */
+    --frontend: #e8590c; --backend: #b0410b; --api: #d99000; --database: #8a5a2b;
+    --git: #c0392b; --cloud: #4e6e81; --devops: #6b8e23; --cicd: #9c4221; --ai: #e8590c;
+    --radius: 24px;
+    --shadow: 0 30px 80px -20px rgba(20, 12, 4, .45), 0 8px 24px -12px rgba(20, 12, 4, .3);
+    --font: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: var(--font);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    background:
+      radial-gradient(900px 600px at 12% 0%, #2e2a25 0%, transparent 55%),
+      radial-gradient(900px 600px at 100% 100%, #2a201a 0%, transparent 55%),
+      var(--bg);
+    overflow: hidden;
+  }
+
+  /* ============================================================
+     STAGE + SLIDES
+     ============================================================ */
+  .stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+    padding: clamp(12px, 3vh, 44px); }
+
+  .slide {
+    display: none;
+    width: min(1200px, 96vw);
+    height: min(700px, 92vh);
+    background:
+      radial-gradient(1100px 480px at 88% -12%, rgba(232,89,12,.06), transparent 60%),
+      var(--slide-bg);
+    border: 1px solid rgba(239, 227, 212, .9);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: clamp(30px, 5.2vh, 64px) clamp(34px, 5.5vw, 76px);
+    position: relative; overflow: hidden; flex-direction: column;
+  }
+  .slide.active { display: flex; animation: pop .5s cubic-bezier(.2,.75,.2,1); }
+  @keyframes pop {
+    from { opacity: 0; transform: translateY(16px) scale(.985); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  /* staggered entrance for slide content */
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .slide.active > .kicker,
+  .slide.active .body > * { animation: rise .5s both cubic-bezier(.2,.75,.2,1); }
+  .slide.active > .kicker              { animation-delay: .04s; }
+  .slide.active .body > *:nth-child(1) { animation-delay: .10s; }
+  .slide.active .body > *:nth-child(2) { animation-delay: .16s; }
+  .slide.active .body > *:nth-child(3) { animation-delay: .22s; }
+  .slide.active .body > *:nth-child(4) { animation-delay: .28s; }
+  .slide.active .body > *:nth-child(5) { animation-delay: .34s; }
+  .slide.active .body > *:nth-child(6) { animation-delay: .40s; }
+
+  /* accent strip on the left of every slide */
+  .slide::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 8px;
+    background: linear-gradient(180deg, var(--primary), var(--primary-2));
+    box-shadow: 0 0 24px rgba(232,89,12,.45);
+  }
+
+  .kicker {
+    display: inline-flex; align-items: center; gap: 9px; align-self: flex-start;
+    font-size: clamp(11px, 1.3vw, 13.5px); font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--primary);
+    background: var(--cream); border: 1px solid var(--line);
+    padding: 7px 14px 7px 11px; border-radius: 999px; margin-bottom: 18px;
+  }
+  .kicker .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor;
+    box-shadow: 0 0 0 4px rgba(232,89,12,.14); }
+
+  h1 { font-size: clamp(32px, 5.2vw, 62px); line-height: 1.03; letter-spacing: -.025em; font-weight: 800; }
+  h2 { font-size: clamp(27px, 4vw, 46px); line-height: 1.06; letter-spacing: -.025em; font-weight: 800; margin-bottom: 10px; }
+  .body h2::after { content: ""; display: block; width: 56px; height: 4px; border-radius: 3px;
+    margin: 14px 0 4px; background: linear-gradient(90deg, var(--primary), var(--primary-2)); }
+  h3 { font-size: clamp(18px, 2.2vw, 24px); font-weight: 700; letter-spacing: -.01em; }
+  p  { font-size: clamp(15px, 1.85vw, 20.5px); line-height: 1.55; color: var(--ink-soft); }
+  .lead { font-size: clamp(16px, 2.1vw, 23px); color: var(--muted); font-weight: 500; }
+  em { font-style: normal; font-weight: 700; color: var(--primary); }
+
+  .body { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 16px; min-height: 0; }
+
+  ul.clean { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  ul.clean li { display: flex; gap: 14px; align-items: flex-start;
+    font-size: clamp(15px, 1.85vw, 20.5px); line-height: 1.45; color: var(--ink-soft); }
+  ul.clean li .mk {
+    color: var(--primary); font-weight: 800; flex: none; min-width: 26px; height: 26px;
+    display: grid; place-items: center; background: var(--cream); border-radius: 8px;
+    font-size: 14px; margin-top: 1px;
+  }
+
+  .pill {
+    display: inline-block; padding: 5px 13px; border-radius: 999px;
+    background: var(--cream); color: var(--primary); font-weight: 700; font-size: 14px;
+    border: 1px solid var(--line);
+  }
+
+  /* card grid */
+  .grid { display: grid; gap: 16px; }
+  .grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+  .card {
+    border: 1px solid var(--line); border-radius: 16px;
+    padding: 20px 22px; background: linear-gradient(180deg, #fff, var(--cream-2));
+    box-shadow: 0 1px 0 #fff inset, 0 10px 24px -16px rgba(20,12,4,.4);
+    transition: transform .25s cubic-bezier(.2,.75,.2,1), box-shadow .25s;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 18px 36px -18px rgba(20,12,4,.5); }
+  .card .ic { font-size: 32px; line-height: 1; }
+  .card h3 { margin: 10px 0 6px; }
+  .card p { font-size: clamp(13px, 1.5vw, 16px); color: var(--muted); line-height: 1.45; }
+  .card .tag { font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+
+  /* colored accents per topic */
+  .a-frontend { color: var(--frontend); } .b-frontend { border-top: 4px solid var(--frontend); }
+  .a-backend  { color: var(--backend);  } .b-backend  { border-top: 4px solid var(--backend); }
+  .a-api      { color: var(--api);      } .b-api      { border-top: 4px solid var(--api); }
+  .a-database { color: var(--database); } .b-database { border-top: 4px solid var(--database); }
+  .a-git      { color: var(--git);      } .b-git      { border-top: 4px solid var(--git); }
+  .a-cloud    { color: var(--cloud);    } .b-cloud    { border-top: 4px solid var(--cloud); }
+  .a-devops   { color: var(--devops);   } .b-devops   { border-top: 4px solid var(--devops); }
+  .a-cicd     { color: var(--cicd);     } .b-cicd     { border-top: 4px solid var(--cicd); }
+  .a-ai       { color: var(--ai);       } .b-ai       { border-top: 4px solid var(--ai); }
+
+  /* horizontal flow diagram */
+  .flow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .node {
+    border: 1.5px solid var(--line); border-radius: 16px; padding: 15px 18px; text-align: center;
+    min-width: 124px; background: linear-gradient(180deg, #fff, var(--cream-2)); font-weight: 700;
+    box-shadow: 0 10px 22px -16px rgba(20,12,4,.45); transition: transform .25s;
+  }
+  .node:hover { transform: translateY(-3px); }
+  .node .ic { font-size: 28px; display: block; margin-bottom: 5px; }
+  .node small { display: block; font-weight: 500; color: var(--muted); font-size: 12px; }
+  .arrow { font-size: 24px; color: var(--primary); opacity: .55; }
+
+  /* numbered steps (request lifecycle) */
+  .steps { display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; gap: 16px; align-items: center; }
+  .step .num {
+    flex: none; width: 40px; height: 40px; border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    color: #fff; font-weight: 800; display: grid; place-items: center; font-size: 17px;
+    box-shadow: 0 8px 18px -8px rgba(232,89,12,.7);
+  }
+  .step .txt { font-size: clamp(14px, 1.7vw, 19px); color: var(--ink-soft); }
+  .step .txt b { color: var(--ink); }
+
+  code, .mono {
+    font-family: var(--mono); background: #2a2724; color: #f1e9dd;
+    padding: 3px 8px; border-radius: 7px; font-size: .9em;
+  }
+  .codeblock {
+    font-family: var(--mono); background: #26221f; color: #f1e9dd;
+    padding: 18px 22px; border-radius: 14px; font-size: clamp(13px, 1.6vw, 17px);
+    line-height: 1.65; white-space: pre; overflow: auto;
+    box-shadow: 0 16px 36px -20px rgba(20,12,4,.6); border: 1px solid rgba(255,255,255,.06);
+  }
+  .codeblock .k { color: #f7a85f; } .codeblock .s { color: #a5d66f; } .codeblock .c { color: #9a8f80; }
+
+  /* kanban board (Day-in-the-life slide) */
+  .kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .col { background: var(--cream); border: 1px solid var(--line); border-radius: 16px; padding: 13px; }
+  .col h4 {
+    font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+    margin-bottom: 11px; display: flex; align-items: center; gap: 6px; font-weight: 800;
+  }
+  .ticket {
+    background: #fff; border-radius: 11px; padding: 11px 13px;
+    box-shadow: 0 6px 16px -10px rgba(20,12,4,.4); border-left: 4px solid var(--primary);
+    font-size: clamp(12px, 1.4vw, 15px); line-height: 1.4; transition: transform .2s;
+  }
+  .ticket:hover { transform: translateY(-2px); }
+  .ticket + .ticket { margin-top: 9px; }
+  .ticket b { color: var(--ink); }
+  .ticket .key { font-size: 11px; font-weight: 800; color: var(--primary); letter-spacing: .04em; }
+
+  /* footer */
+  .foot {
+    position: absolute; left: clamp(34px,5.5vw,76px); right: clamp(34px,5.5vw,76px); bottom: 18px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 11px;
+  }
+  .foot .brand { font-weight: 800; color: var(--ink); letter-spacing: -.01em; }
+  .foot .brand span { color: var(--primary); }
+
+  /* ============================================================
+     TITLE + SECTION slides (dark)
+     ============================================================ */
+  .slide.cover, .slide.dark {
+    background:
+      radial-gradient(680px 520px at 12% 16%, rgba(251,139,61,.24), transparent 60%),
+      radial-gradient(620px 520px at 90% 88%, rgba(232,89,12,.22), transparent 60%),
+      radial-gradient(130% 130% at 50% 0%, #3a352f 0%, #2b2926 52%, #1a1815 100%);
+    color: #fff; justify-content: center; border-color: rgba(255,255,255,.08);
+  }
+  .slide.cover::before, .slide.dark::before {
+    background: linear-gradient(180deg, #fb8b3d, #ffd9b0); box-shadow: 0 0 28px rgba(251,139,61,.6);
+  }
+  .slide.cover .kicker, .slide.dark .kicker {
+    background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.18); color: #fcd9b6;
+  }
+  .slide.cover h1, .slide.dark h2 { color: #fff; }
+  .slide.dark .body h2::after { background: linear-gradient(90deg, #fb8b3d, #ffd9b0); }
+  .slide.cover p, .slide.dark p { color: #e7dccd; }
+  .slide.cover .foot, .slide.dark .foot { border-color: rgba(255,255,255,.16); color:#c9bdab; }
+  .slide.cover .foot .brand, .slide.dark .foot .brand { color:#fff; }
+  .slide.cover .foot .brand span, .slide.dark .foot .brand span { color:#fb8b3d; }
+  .badge-row { display:flex; gap:11px; flex-wrap:wrap; margin-top: 28px; }
+  .badge {
+    border:1px solid rgba(255,255,255,.26); border-radius:999px; padding:9px 17px;
+    font-size:14px; font-weight:600; color:#f2e7d8; background: rgba(255,255,255,.04);
+    backdrop-filter: blur(4px); transition: all .2s;
+  }
+  .badge:hover { background: rgba(251,139,61,.22); border-color: rgba(251,139,61,.5); transform: translateY(-2px); }
+  .glow { color: transparent; background: linear-gradient(90deg,#fb8b3d,#ffe3c2,#fb8b3d);
+    -webkit-background-clip:text; background-clip:text; }
+
+  /* big takeaway emphasis */
+  .quote { font-size: clamp(21px, 3vw, 35px); font-weight: 800; line-height: 1.22; letter-spacing: -.01em; }
+  .quote .hl { background: linear-gradient(transparent 58%, #fcd9a0 58%); padding: 0 2px; }
+
+  /* ============================================================
+     CHROME: progress, controls
+     ============================================================ */
+  #progress { position: fixed; top: 0; left: 0; height: 4px; width: 0;
+    background: linear-gradient(90deg, #fb8b3d, #e8590c); z-index: 50; transition: width .35s ease;
+    box-shadow: 0 0 14px rgba(232,89,12,.7); }
+  .controls {
+    position: fixed; bottom: 20px; right: 22px; display: flex; gap: 9px; z-index: 50; padding: 6px;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 16px; backdrop-filter: blur(8px);
+  }
+  .controls button {
+    width: 44px; height: 44px; border-radius: 11px; border: none; cursor: pointer;
+    background: rgba(255,255,255,.10); color: #fff; font-size: 20px; transition: all .2s;
+    display: grid; place-items: center;
+  }
+  .controls button:hover { background: var(--primary); transform: translateY(-2px); }
+  #counter { position: fixed; bottom: 28px; left: 26px; color: #c9bdab; font-size: 13.5px; z-index: 50;
+    font-variant-numeric: tabular-nums; font-weight: 600; letter-spacing: .03em; }
+  .hint { position: fixed; top: 15px; right: 20px; color:#9a8f80; font-size:12px; z-index:50; font-weight:500; }
+
+  @media (max-width: 760px) {
+    .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr 1fr; }
+    .kanban { grid-template-columns: 1fr 1fr; }
+    .flow { gap: 8px; } .node { min-width: 96px; padding: 11px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .slide.active, .slide.active .body > *, .slide.active > .kicker { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div class="hint">← → to navigate · F = fullscreen</div>
+<div class="stage" id="stage">
+
+  <!-- 1. COVER -->
+  <section class="slide cover active">
+    <div class="body">
+      <div class="kicker" style="color:#fcd9b6"><span class="dot"></span> Day 1 · Softpro School of AI</div>
+      <h1>Basics of Software Engineering<br><span class="glow">— from a Software Engineer</span></h1>
+      <p class="lead" style="margin-top:18px">The big picture of how real software is built — <b style="color:#fff">before</b> we write a single line of code.</p>
+      <div class="badge-row">
+        <span class="badge">Frontend</span><span class="badge">Backend</span>
+        <span class="badge">API</span><span class="badge">Database</span>
+        <span class="badge">Git</span><span class="badge">Cloud</span>
+        <span class="badge">DevOps</span><span class="badge">CI/CD</span>
+      </div>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>SSAI-101 · 45-Day AI Development</span></div>
+  </section>
+
+  <!-- 2. WHY THIS TALK -->
+  <section class="slide">
+    <div class="kicker"><span class="dot"></span> Why start here</div>
+    <div class="body">
+      <h2>You're here to build AI. But AI apps are still <em>software</em>.</h2>
+      <p>An AI app has a screen, a server, a database, an API call to the model, and it has to be deployed for the world to use. Same building blocks as every other app.</p>
+      <p class="lead" style="margin-top:8px">Today is the <b style="color:var(--primary)">map</b>. Every box on it, you'll build with your own hands over the next 45 days.</p>
+      <div class="card b-frontend" style="margin-top:6px">
+        <p style="color:var(--ink)">🎯 <b>Goal for this session:</b> walk out able to explain frontend, backend, API, database, Git, cloud, DevOps and CI/CD to a friend — and know where AI fits.</p>
+      </div>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>The map before the journey</span></div>
+  </section>
+
+  <!-- 3. WHAT IS SE -->
+  <section class="slide">
+    <div class="kicker"><span class="dot"></span> Foundations</div>
+    <div class="body">
+      <h2>What is Software Engineering?</h2>
+      <p>It is <b>not</b> just "writing code." Coding is one person writing a script that works once. Engineering is <b>teams building products that work for millions, for years.</b></p>
+      <div class="grid cols-2" style="margin-top:10px">
+        <div class="card"><div class="ic">👩‍💻</div><h3>Just coding</h3><p>One file. Runs on my laptop. Works today. Nobody else reads it.</p></div>
+        <div class="card b-frontend"><div class="ic">🏗️</div><h3>Software engineering</h3><p>Correct, reliable, secure, maintainable. Built by teams. Tested, deployed, monitored, improved.</p></div>
+      </div>
+      <p class="lead" style="margin-top:8px">The extra words — <span class="pill">reliable</span> <span class="pill">maintainable</span> <span class="pill">scalable</span> — are what make it <em>engineering</em>.</p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>Coding ≠ Engineering</span></div>
+  </section>
+
+  <!-- 4. RESTAURANT ANALOGY -->
+  <section class="slide">
+    <div class="kicker"><span class="dot"></span> The big picture</div>
+    <div class="body">
+      <h2>Every app works like a restaurant 🍽️</h2>
+      <p>When you order food, four things cooperate. Apps are exactly the same.</p>
+      <div class="grid cols-4" style="margin-top:8px">
+        <div class="card b-frontend"><div class="ic">🪑</div><h3 class="a-frontend">Dining area + menu</h3><p>What you see &amp; touch = <b>Frontend</b></p></div>
+        <div class="card b-api"><div class="ic">🧑‍🍳</div><h3 class="a-api">The waiter</h3><p>Carries your order back &amp; forth = <b>API</b></p></div>
+        <div class="card b-backend"><div class="ic">🔥</div><h3 class="a-backend">The kitchen</h3><p>Cooks / does the work = <b>Backend</b></p></div>
+        <div class="card b-database"><div class="ic">🧊</div><h3 class="a-database">The pantry</h3><p>Stores ingredients = <b>Database</b></p></div>
+      </div>
+      <p class="lead" style="margin-top:10px">Keep this picture in your head — we'll zoom into each one.</p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>You · Menu · Waiter · Kitchen · Pantry</span></div>
+  </section>
+
+  <!-- 5. CLIENT & SERVER -->
+  <section class="slide">
+    <div class="kicker"><span class="dot"></span> The two sides</div>
+    <div class="body">
+      <h2>Client &amp; Server</h2>
+      <p>Every app has two halves talking over the internet:</p>
+      <div class="flow" style="margin:18px 0">
+        <div class="node"><span class="ic">📱</span> Client <small>your phone / browser</small></div>
+        <span class="arrow">⇄</span>
+        <div class="node"><span class="ic">🌐</span> Internet <small>requests &amp; responses</small></div>
+        <span class="arrow">⇄</span>
+        <div class="node"><span class="ic">🖥️</span> Server <small>a computer elsewhere</small></div>
+      </div>
+      <ul class="clean">
+        <li><span class="mk">→</span><b>Client (frontend)</b> runs on <em>your</em> device. Shows the app.</li>
+        <li><span class="mk">→</span><b>Server (backend)</b> runs in a data center. Does the heavy lifting &amp; remembers things.</li>
+      </ul>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>Two computers, one conversation</span></div>
+  </section>
+
+  <!-- 6. FRONTEND -->
+  <section class="slide">
+    <div class="kicker a-frontend"><span class="dot"></span> Frontend</div>
+    <div class="body">
+      <h2 class="a-frontend">Frontend — what the user sees 👀</h2>
+      <p>The screen, buttons, forms, colors, animations. If you can <b>click it or read it</b>, it's the frontend.</p>
+      <div class="grid cols-3" style="margin-top:8px">
+        <div class="card b-frontend"><div class="ic">🧱</div><h3>HTML</h3><p>Structure — the skeleton</p></div>
+        <div class="card b-frontend"><div class="ic">🎨</div><h3>CSS</h3><p>Style — looks &amp; layout <small>(this very slide is HTML + CSS!)</small></p></div>
+        <div class="card b-frontend"><div class="ic">⚡</div><h3>JavaScript</h3><p>Behavior — interactivity</p></div>
+      </div>
+      <p style="margin-top:6px"><b>Frameworks:</b> React, Vue, Angular. <b>In this course:</b> we'll use <span class="pill">Streamlit</span> to build UIs in pure Python — no JS needed.</p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>"If you can click it, it's frontend"</span></div>
+  </section>
+
+  <!-- 7. BACKEND -->
+  <section class="slide">
+    <div class="kicker a-backend"><span class="dot"></span> Backend</div>
+    <div class="body">
+      <h2 class="a-backend">Backend — the brain behind the scenes 🧠</h2>
+      <p>You never see it, but nothing works without it. It runs on the server and handles the <b>logic, rules, security, and data.</b></p>
+      <ul class="clean">
+        <li><span class="mk" style="color:var(--backend)">→</span>Processes requests ("log this user in", "summarize this PDF")</li>
+        <li><span class="mk" style="color:var(--backend)">→</span>Enforces rules &amp; security (passwords, permissions, payments)</li>
+        <li><span class="mk" style="color:var(--backend)">→</span>Talks to the database and to other services / AI models</li>
+      </ul>
+      <p style="margin-top:6px"><b>Languages:</b> Python, Node.js, Java, Go. <b>In this course:</b> <span class="pill">Python</span> — the language of AI.</p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>Invisible, but in charge</span></div>
+  </section>
+
+  <!-- 8. API -->
+  <section class="slide">
+    <div class="kicker a-api"><span class="dot"></span> API</div>
+    <div class="body">
+      <h2 class="a-api">API — how the pieces talk 🤝</h2>
+      <p><b>A</b>pplication <b>P</b>rogramming <b>I</b>nterface = the <em>waiter</em>. A clear contract: <q>send me this, I'll send you that.</q></p>
+      <div class="codeblock"><span class="c"># Frontend asks the backend a question over HTTP</span>
+GET  /weather?city=Lucknow
+<span class="c"># Backend replies with structured data (JSON)</span>
+{ <span class="s">"city"</span>: <span class="s">"Lucknow"</span>, <span class="s">"temp"</span>: 41, <span class="s">"unit"</span>: <span class="s">"C"</span> }</div>
+      <p style="margin-top:10px">⭐ <b>This is the big one for you:</b> calling AI is just calling an API. <code>send a prompt → get text back</code>. You'll make your first <b>Gemini API</b> call on Day 9.</p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>The contract between programs</span></div>
+  </section>
+
+  <!-- 9. DATABASE -->
+  <section class="slide">
+    <div class="kicker a-database"><span class="dot"></span> Database</div>
+    <div class="body">
+      <h2 class="a-database">Database — where data lives forever 🗄️</h2>
+      <p>Close the app, the data's still there: your account, posts, orders, messages. The <b>pantry</b> that never forgets.</p>
+      <div class="grid cols-2" style="margin-top:8px">
+        <div class="card b-database"><div class="ic">📊</div><h3>SQL (tables)</h3><p>Rows &amp; columns, like a spreadsheet. <b>PostgreSQL, MySQL</b></p></div>
+        <div class="card b-database"><div class="ic">📄</div><h3>NoSQL (documents)</h3><p>Flexible, JSON-like. <b>MongoDB, Redis</b></p></div>
+      </div>
+      <p style="margin-top:8px">🤖 <b>For AI you'll meet a new kind:</b> <span class="pill">Vector DBs</span> (Chroma, pgvector) — they store <em>meaning</em>, not just text. That's Phase 2.</p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>The memory that outlives the app</span></div>
+  </section>
+
+  <!-- 10. REQUEST LIFECYCLE -->
+  <section class="slide">
+    <div class="kicker"><span class="dot"></span> Putting it together</div>
+    <div class="body">
+      <h2>What happens when you tap ❤️ on a post?</h2>
+      <div class="steps" style="margin-top:6px">
+        <div class="step"><div class="num">1</div><div class="txt"><b>Frontend:</b> you tap the heart — the screen sends a request</div></div>
+        <div class="step"><div class="num">2</div><div class="txt"><b>API:</b> a request travels over the internet to the server</div></div>
+        <div class="step"><div class="num">3</div><div class="txt"><b>Backend:</b> checks you're logged in, increases the like count</div></div>
+        <div class="step"><div class="num">4</div><div class="txt"><b>Database:</b> saves "this user liked this post" permanently</div></div>
+        <div class="step"><div class="num">5</div><div class="txt"><b>Response:</b> backend replies "done ✅"</div></div>
+        <div class="step"><div class="num">6</div><div class="txt"><b>Frontend:</b> the heart turns red — all in ~200 milliseconds</div></div>
+      </div>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>The full round-trip, every single time</span></div>
+  </section>
+
+  <!-- 11. GIT -->
+  <section class="slide">
+    <div class="kicker a-git"><span class="dot"></span> Version Control</div>
+    <div class="body">
+      <h2 class="a-git">Git &amp; GitHub — save points + teamwork 🔁</h2>
+      <p>Git is like a <b>"save game"</b> for code — but smarter. It records every change so you can rewind, branch, and let a whole team work without overwriting each other.</p>
+      <div class="grid cols-3" style="margin-top:6px">
+        <div class="card b-git"><div class="ic">📸</div><h3>Commit</h3><p>A snapshot of your code at a moment</p></div>
+        <div class="card b-git"><div class="ic">↩️</div><h3>History</h3><p>Undo to any past version</p></div>
+        <div class="card b-git"><div class="ic">👥</div><h3>Collaborate</h3><p>Many people, one project, no chaos</p></div>
+      </div>
+      <p style="margin-top:8px"><b>Git</b> = the tool · <b>GitHub</b> = its home in the cloud. You'll finish this course with <span class="pill">4 projects on GitHub</span> — your portfolio.</p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>Never lose work. Never overwrite a teammate.</span></div>
+  </section>
+
+  <!-- 12. CLOUD -->
+  <section class="slide">
+    <div class="kicker a-cloud"><span class="dot"></span> Cloud</div>
+    <div class="body">
+      <h2 class="a-cloud">The Cloud ☁️</h2>
+      <p class="quote">The cloud is just <span class="hl">someone else's computer</span> — that you rent instead of buy.</p>
+      <ul class="clean" style="margin-top:10px">
+        <li><span class="mk" style="color:var(--cloud)">→</span>No buying servers — rent power by the minute</li>
+        <li><span class="mk" style="color:var(--cloud)">→</span>Scale from 1 user to 1 million without new hardware</li>
+        <li><span class="mk" style="color:var(--cloud)">→</span>Big players: <b>AWS, Google Cloud, Azure</b></li>
+      </ul>
+      <p style="margin-top:6px">💸 <b>In this course everything is free-tier:</b> <span class="pill">Hugging Face Spaces</span> <span class="pill">Render</span> <span class="pill">Vercel</span> <span class="pill">Supabase</span> — you'll deploy real apps at ₹0.</p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>Rent, don't buy</span></div>
+  </section>
+
+  <!-- 13. DEVOPS -->
+  <section class="slide">
+    <div class="kicker a-devops"><span class="dot"></span> DevOps</div>
+    <div class="body">
+      <h2 class="a-devops">DevOps — building the bridge 🌉</h2>
+      <p>Not a tool — a <b>culture &amp; set of practices</b> that joins two worlds that used to fight:</p>
+      <div class="flow" style="margin:16px 0">
+        <div class="node"><span class="ic">🛠️</span> Dev <small>build the software</small></div>
+        <span class="arrow">+</span>
+        <div class="node" style="border-color:var(--devops)"><span class="ic">🤝</span> DevOps <small>automate the handoff</small></div>
+        <span class="arrow">+</span>
+        <div class="node"><span class="ic">⚙️</span> Ops <small>run it in production</small></div>
+      </div>
+      <p>Goal: <b>ship faster and more reliably</b> by automating the boring, error-prone steps between "it works on my laptop" and "it's live for users."</p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>Dev + Ops = ship with confidence</span></div>
+  </section>
+
+  <!-- 14. CI/CD -->
+  <section class="slide">
+    <div class="kicker a-cicd"><span class="dot"></span> CI/CD</div>
+    <div class="body">
+      <h2 class="a-cicd">CI/CD — the automation pipeline 🚀</h2>
+      <p><b>CI</b> = Continuous Integration · <b>CD</b> = Continuous Delivery. You push code; a robot does the rest.</p>
+      <div class="flow" style="margin:16px 0">
+        <div class="node"><span class="ic">⌨️</span> Code <small>you write</small></div><span class="arrow">→</span>
+        <div class="node"><span class="ic">⬆️</span> Push <small>to GitHub</small></div><span class="arrow">→</span>
+        <div class="node"><span class="ic">🔨</span> Build <small>assemble app</small></div><span class="arrow">→</span>
+        <div class="node"><span class="ic">✅</span> Test <small>auto-check</small></div><span class="arrow">→</span>
+        <div class="node" style="border-color:var(--cicd)"><span class="ic">🌍</span> Deploy <small>live to users</small></div>
+      </div>
+      <p class="lead">Every change is tested and shipped automatically — no manual, midnight, error-prone deploys.</p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>Push code → robot ships it</span></div>
+  </section>
+
+  <!-- 14b. A DAY IN THE LIFE -->
+  <section class="slide">
+    <div class="kicker"><span class="dot"></span> A day in the life</div>
+    <div class="body">
+      <h2>A day in the life of a Software Engineer 🗓️</h2>
+      <p>You don't just "code all day." Work flows as <b>tickets</b> on a board (Jira) that travel
+      from an idea to a live feature. Here's one ticket's journey:</p>
+      <div class="kanban" style="margin-top:6px">
+        <div class="col">
+          <h4>📋 To Do</h4>
+          <div class="ticket" style="border-left-color:var(--cloud)">
+            <span class="key">PROJ-42</span><br>
+            ☕ <b>Standup:</b> pick a ticket — <em>"Add a Login button"</em>
+          </div>
+        </div>
+        <div class="col">
+          <h4>🔨 In Progress</h4>
+          <div class="ticket" style="border-left-color:var(--primary)">
+            🌿 <b>Branch:</b> <code style="font-size:.85em">git checkout -b feature/login</code>
+          </div>
+          <div class="ticket" style="border-left-color:var(--primary)">
+            ⌨️ <b>Build it</b> + write tests
+          </div>
+        </div>
+        <div class="col">
+          <h4>👀 In Review</h4>
+          <div class="ticket" style="border-left-color:var(--api)">
+            🔀 <b>Pull Request:</b> teammate reviews your code
+          </div>
+          <div class="ticket" style="border-left-color:var(--api)">
+            ✅ <b>CI</b> runs all tests automatically
+          </div>
+        </div>
+        <div class="col">
+          <h4>✅ Done</h4>
+          <div class="ticket" style="border-left-color:var(--devops)">
+            🚀 <b>Merge → CD</b> deploys to production
+          </div>
+          <div class="ticket" style="border-left-color:var(--devops)">
+            📈 <b>Monitor</b> · drag ticket to Done
+          </div>
+        </div>
+      </div>
+      <p class="lead" style="margin-top:12px">Every feature you've ever used started as a <b style="color:var(--primary)">ticket</b> that travelled across a board like this.</p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>Jira ticket → branch → PR → CI → deploy → Done</span></div>
+  </section>
+
+  <!-- 15. FULL MAP -->
+  <section class="slide dark">
+    <div class="kicker" style="color:#fcd9b6"><span class="dot"></span> The whole map</div>
+    <div class="body">
+      <h2>How every piece connects</h2>
+      <div class="flow" style="margin:14px 0">
+        <div class="node" style="background:#3a352f;color:#fff;border-color:#4a443c"><span class="ic">👩‍💻</span> Developer</div>
+        <span class="arrow" style="color:#b3a795">→</span>
+        <div class="node" style="background:#3a352f;color:#fff;border-color:#db2777"><span class="ic">🔁</span> Git / GitHub</div>
+        <span class="arrow" style="color:#b3a795">→</span>
+        <div class="node" style="background:#3a352f;color:#fff;border-color:#c026d3"><span class="ic">🚀</span> CI/CD</div>
+        <span class="arrow" style="color:#b3a795">→</span>
+        <div class="node" style="background:#3a352f;color:#fff;border-color:#0284c7"><span class="ic">☁️</span> Cloud</div>
+      </div>
+      <p style="text-align:center;color:#b3a795">…where the app itself runs:</p>
+      <div class="flow" style="margin-top:10px">
+        <div class="node" style="background:#221f1b;color:#fff;border-color:#2563eb"><span class="ic">👀</span> Frontend</div>
+        <span class="arrow" style="color:#b3a795">⇄</span>
+        <div class="node" style="background:#221f1b;color:#fff;border-color:#ea580c"><span class="ic">🤝</span> API</div>
+        <span class="arrow" style="color:#b3a795">⇄</span>
+        <div class="node" style="background:#221f1b;color:#fff;border-color:#16a34a"><span class="ic">🧠</span> Backend</div>
+        <span class="arrow" style="color:#b3a795">⇄</span>
+        <div class="node" style="background:#221f1b;color:#fff;border-color:#9333ea"><span class="ic">🗄️</span> Database</div>
+      </div>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>Every box — you'll build it</span></div>
+  </section>
+
+  <!-- 16. TEAM ROLES -->
+  <section class="slide">
+    <div class="kicker"><span class="dot"></span> Careers</div>
+    <div class="body">
+      <h2>Who builds all this? The team 👥</h2>
+      <div class="grid cols-3" style="margin-top:6px">
+        <div class="card b-frontend"><div class="ic">👀</div><h3 class="a-frontend">Frontend Dev</h3><p>The screens &amp; experience</p></div>
+        <div class="card b-backend"><div class="ic">🧠</div><h3 class="a-backend">Backend Dev</h3><p>Logic, data, servers</p></div>
+        <div class="card"><div class="ic">🔗</div><h3>Full-Stack Dev</h3><p>Both sides</p></div>
+        <div class="card b-devops"><div class="ic">⚙️</div><h3 class="a-devops">DevOps Engineer</h3><p>Pipelines &amp; infra</p></div>
+        <div class="card b-ai"><div class="ic">🤖</div><h3 class="a-ai">AI / ML Engineer</h3><p><b>← you are here</b></p></div>
+        <div class="card"><div class="ic">🔍</div><h3>QA · PM · Designer</h3><p>Quality, plan, design</p></div>
+      </div>
+      <p class="lead" style="margin-top:8px">An <b>AI Engineer sits on top of all of it</b> — which is why we learn the whole stack.</p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>Pick your seat — or take many</span></div>
+  </section>
+
+  <!-- 17. WHERE AI FITS -->
+  <section class="slide">
+    <div class="kicker a-ai"><span class="dot"></span> Where AI fits</div>
+    <div class="body">
+      <h2 class="a-ai">An AI app = normal software + an LLM brain 🤖</h2>
+      <p>You still need every piece you just learned. The AI model is one powerful new ingredient — reached through an API.</p>
+      <div class="grid cols-4" style="margin-top:8px">
+        <div class="card b-frontend"><h3 class="a-frontend">Frontend</h3><p>Streamlit / Gradio</p></div>
+        <div class="card b-backend"><h3 class="a-backend">Backend</h3><p>Python</p></div>
+        <div class="card b-api"><h3 class="a-api">API</h3><p>Gemini · Groq · Ollama</p></div>
+        <div class="card b-database"><h3 class="a-database">Database</h3><p>Chroma · pgvector</p></div>
+      </div>
+      <p class="lead" style="margin-top:10px">+ <b>Git</b> to version it, <b>Cloud</b> to host it, <b>CI/CD</b> to ship it. <em>That's the entire course.</em></p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>Same stack, smarter brain</span></div>
+  </section>
+
+  <!-- 18. 45-DAY JOURNEY -->
+  <section class="slide dark">
+    <div class="kicker" style="color:#fcd9b6"><span class="dot"></span> Your roadmap</div>
+    <div class="body">
+      <h2>Your next 45 days 🗺️</h2>
+      <div class="grid cols-4" style="margin-top:6px">
+        <div class="card" style="background:#221f1b;border-color:#4a443c;border-top:4px solid #2563eb"><span class="tag a-frontend">Phase 1 · Days 1–15</span><h3 style="color:#fff;margin-top:6px">Foundations</h3><p style="color:#b3a795">Python → first LLM app</p></div>
+        <div class="card" style="background:#221f1b;border-color:#4a443c;border-top:4px solid #16a34a"><span class="tag a-backend">Phase 2 · Days 16–25</span><h3 style="color:#fff;margin-top:6px">RAG &amp; Memory</h3><p style="color:#b3a795">Chat with your documents</p></div>
+        <div class="card" style="background:#221f1b;border-color:#4a443c;border-top:4px solid #ea580c"><span class="tag a-api">Phase 3 · Days 26–37</span><h3 style="color:#fff;margin-top:6px">Agents &amp; Tools</h3><p style="color:#b3a795">AI that takes actions</p></div>
+        <div class="card" style="background:#221f1b;border-color:#4a443c;border-top:4px solid #e11d48"><span class="tag a-ai">Phase 4 · Days 38–45</span><h3 style="color:#fff;margin-top:6px">Capstone</h3><p style="color:#b3a795">Ship &amp; get placed</p></div>
+      </div>
+      <p class="lead" style="margin-top:14px;color:#f2e7d8">🎁 You'll walk out with <b style="color:#fff">4 deployed projects</b>, a GitHub portfolio, and a live portfolio site.</p>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>3 mini-projects + 1 capstone</span></div>
+  </section>
+
+  <!-- 19. TAKEAWAYS -->
+  <section class="slide">
+    <div class="kicker"><span class="dot"></span> Remember this</div>
+    <div class="body">
+      <h2>5 things to carry forward</h2>
+      <ul class="clean" style="margin-top:6px">
+        <li><span class="mk">1</span><b>Software = Frontend + API + Backend + Database</b> — the four cooperating parts.</li>
+        <li><span class="mk">2</span><b>An API is just a contract</b> — send a request, get a response. Calling AI works the same way.</li>
+        <li><span class="mk">3</span><b>Git saves &amp; shares</b> your work; <b>GitHub</b> is your public portfolio.</li>
+        <li><span class="mk">4</span><b>Cloud runs it; DevOps + CI/CD automate shipping it.</b></li>
+        <li><span class="mk">5</span><b>AI engineering builds on all of it</b> — don't memorize, just recognize. You'll meet each piece hands-on.</li>
+      </ul>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>Recognize, don't memorize</span></div>
+  </section>
+
+  <!-- 20. CLOSE -->
+  <section class="slide cover">
+    <div class="body">
+      <div class="kicker" style="color:#fcd9b6"><span class="dot"></span> That's the map</div>
+      <h1>Now let's <span class="glow">build.</span></h1>
+      <p class="lead" style="margin-top:16px">Next up → open your terminal and run your very first line of Python.</p>
+      <div class="badge-row">
+        <span class="badge">Questions? Ask anything 🙋</span>
+        <span class="badge">→ Module 01: Running Python</span>
+      </div>
+    </div>
+    <div class="foot"><span class="brand">Softpro <span>School of AI</span></span><span>Day 1 · Welcome aboard 🚀</span></div>
+  </section>
+
+</div>
+
+<div id="counter">1 / 21</div>
+<div class="controls">
+  <button id="prev" title="Previous (←)">‹</button>
+  <button id="fs" title="Fullscreen (F)">⛶</button>
+  <button id="next" title="Next (→)">›</button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let current = 0;
+
+  function show(i) {
+    current = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === current));
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + slides.length;
+    document.getElementById('progress').style.width = ((current + 1) / slides.length * 100) + '%';
+  }
+  const next = () => show(current + 1);
+  const prev = () => show(current - 1);
+
+  function toggleFs() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }
+
+  document.getElementById('next').onclick = next;
+  document.getElementById('prev').onclick = prev;
+  document.getElementById('fs').onclick = toggleFs;
+
+  document.addEventListener('keydown', (e) => {
+    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); next(); }
+    else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { show(0); }
+    else if (e.key === 'End') { show(slides.length - 1); }
+    else if (e.key.toLowerCase() === 'f') { toggleFs(); }
+  });
+
+  // tap right / left half of screen to navigate (touch / projector clicker)
+  document.getElementById('stage').addEventListener('click', (e) => {
+    if (e.target.closest('button')) return;
+    const mid = window.innerWidth / 2;
+    if (e.clientX > mid) next(); else prev();
+  });
+
+  show(0);
+</script>
+</body>
+</html>

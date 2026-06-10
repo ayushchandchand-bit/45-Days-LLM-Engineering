@@ -1,0 +1,9 @@
+# Days 1–7 (Python fundamentals) run on the standard library alone — no installs needed.
+#
+# Dependencies are added here as the AI track begins (Day 8+). Examples to come:
+#   requests
+#   python-dotenv
+#   pydantic
+#   google-generativeai
+#
+# Install with:  pip install -r requirements.txt
