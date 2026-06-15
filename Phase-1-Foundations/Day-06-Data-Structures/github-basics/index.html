@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GitHub Basics · Day 6 — Branching &amp; Collaboration (Part 3 of 3)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root{
+    --bg:#211f1d; --slide:#ffffff; --cream:#fbf1e6; --cream2:#fdf8f1;
+    --ink:#2c2a28; --ink-soft:#4f463f; --muted:#8a7f73; --line:#efe3d4;
+    --primary:#e8590c; --primary2:#fb8b3d; --gold:#d99000; --steel:#4e6e81; --olive:#6b8e23; --berry:#c0392b;
+    --radius:24px;
+    --shadow:0 30px 80px -20px rgba(20,12,4,.45),0 8px 24px -12px rgba(20,12,4,.3);
+    --font:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono","Cascadia Code",Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased;
+    background:radial-gradient(900px 600px at 12% 0%,#2e2a25 0%,transparent 55%),
+               radial-gradient(900px 600px at 100% 100%,#2a201a 0%,transparent 55%),var(--bg);
+    overflow:hidden}
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:clamp(12px,3vh,44px)}
+  .slide{display:none;width:min(1160px,96vw);height:min(700px,92vh);background:
+      radial-gradient(1100px 480px at 88% -12%,rgba(232,89,12,.06),transparent 60%),var(--slide);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(28px,5vw,64px);
+    overflow:hidden;position:relative;flex-direction:column;justify-content:center}
+  .slide.active{display:flex;animation:rise .5s cubic-bezier(.2,.7,.2,1)}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .slide.active>*{animation:fade .6s both}.slide.active>*:nth-child(2){animation-delay:.07s}
+  .slide.active>*:nth-child(3){animation-delay:.14s}.slide.active>*:nth-child(4){animation-delay:.21s}
+  .slide.active>*:nth-child(5){animation-delay:.28s}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  .kicker{font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--primary);margin-bottom:14px}
+  h1{font-size:clamp(2.1rem,5.2vw,3.5rem);font-weight:800;line-height:1.05;letter-spacing:-.02em}
+  h2{font-size:clamp(1.6rem,3.6vw,2.4rem);font-weight:800;line-height:1.1;letter-spacing:-.01em;margin-bottom:18px}
+  p{font-size:clamp(1rem,1.7vw,1.22rem);color:var(--ink-soft);line-height:1.6;max-width:62ch}
+  .lead{font-size:clamp(1.1rem,2vw,1.4rem)}
+  .big{font-size:clamp(2.4rem,6vw,4rem);font-weight:800;color:var(--primary);line-height:1}
+  strong{color:var(--ink)}
+  .muted{color:var(--muted)}
+
+  .grid{display:grid;gap:16px;margin-top:8px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+  .card{background:var(--cream);border:1px solid var(--line);border-radius:18px;padding:20px 22px;transition:transform .2s,box-shadow .2s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 14px 30px -16px rgba(20,12,4,.35)}
+  .card h3{font-size:1.12rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card p{font-size:.98rem;max-width:none}
+  .emoji{font-size:1.4rem}
+  .pill{display:inline-block;background:var(--cream);border:1px solid var(--line);border-radius:999px;
+    padding:7px 16px;font-size:.92rem;font-weight:600;color:var(--ink-soft);margin:5px 6px 0 0}
+  ul.clean{list-style:none;margin-top:10px}
+  ul.clean li{font-size:clamp(1rem,1.7vw,1.2rem);color:var(--ink-soft);line-height:1.5;padding:9px 0 9px 34px;position:relative}
+  ul.clean li::before{content:"";position:absolute;left:0;top:16px;width:14px;height:14px;border-radius:50%;
+    background:var(--primary);box-shadow:0 0 0 4px rgba(232,89,12,.15)}
+  ul.clean li.x::before{background:var(--berry);box-shadow:0 0 0 4px rgba(192,57,43,.15)}
+  .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch;margin-top:6px}
+  .vs .col{border-radius:18px;padding:22px}
+  .vs .no{background:#fdecea;border:1px solid #f3c9c2}.vs .yes{background:#eef6ec;border:1px solid #cfe6c6}
+  .vs .mid{display:flex;align-items:center;font-weight:800;color:var(--muted)}
+  .vs h3{font-size:1.05rem;margin-bottom:8px}.vs p{font-size:.95rem;max-width:none}
+
+  .action{background:linear-gradient(135deg,#fff,var(--cream2));border:2px solid var(--primary);
+    border-radius:20px;padding:24px 26px;margin-top:14px}
+  .action .tag{font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--primary)}
+  .action p{font-size:1.15rem;color:var(--ink);font-weight:600;margin-top:6px;max-width:none}
+
+  .cmd{font-family:var(--mono);background:#211f1d;color:#fbf1e6;border-radius:14px;
+    padding:18px 20px;font-size:clamp(.85rem,1.5vw,1.05rem);line-height:1.85;margin-top:12px;overflow:auto}
+  .cmd .c{color:#fb8b3d}.cmd .o{color:#8a7f73}.cmd .p{color:#6b8e23}.cmd .r{color:#e08a7a}
+
+  .diagram{margin-top:10px;background:var(--cream2);border:1px solid var(--line);border-radius:18px;padding:14px}
+  .diagram svg{display:block;width:100%;height:auto}
+  .svg-label{font-family:var(--font);font-weight:700;fill:var(--ink)}
+  .svg-sub{font-family:var(--mono);fill:var(--muted)}
+  .caption{text-align:center;color:var(--muted);font-size:.92rem;margin-top:8px}
+
+  .flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:14px}
+  .flow .step{background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:12px 16px;font-weight:700;font-size:.96rem}
+  .flow .step .n{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--primary);color:#fff;
+    align-items:center;justify-content:center;font-size:.8rem;margin-right:8px}
+  .flow .arrow{color:var(--muted);font-weight:800;font-size:1.2rem}
+
+  .cover{background:radial-gradient(1200px 500px at 20% -10%,rgba(232,89,12,.16),transparent 60%),
+      radial-gradient(900px 500px at 100% 120%,rgba(217,144,0,.12),transparent 55%),var(--slide)}
+  .brandbar{display:flex;align-items:center;gap:10px;margin-bottom:auto}
+  .dot{width:13px;height:13px;border-radius:50%;background:var(--primary)}
+  .brandbar span{font-weight:700;letter-spacing:.02em}
+  .cover h1 em{font-style:normal;color:var(--primary)}
+  .footer-note{margin-top:auto;color:var(--muted);font-size:.95rem}
+
+  .bar{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--primary),var(--primary2));z-index:9;transition:width .3s}
+  .count{position:fixed;left:18px;bottom:14px;color:var(--cream);font-size:.85rem;font-weight:600;opacity:.8;z-index:9;font-variant-numeric:tabular-nums}
+  .nav{position:fixed;right:18px;bottom:14px;display:flex;gap:8px;z-index:9}
+  .nav button{width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.08);color:#fff;font-size:1.1rem;cursor:pointer;backdrop-filter:blur(8px);transition:background .2s}
+  .nav button:hover{background:rgba(255,255,255,.2)}
+  .hint{position:fixed;right:18px;top:16px;color:var(--cream);font-size:.78rem;opacity:.5;z-index:9}
+  @media(max-width:640px){.g2,.g3,.vs{grid-template-columns:1fr}.vs .mid{display:none}}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="hint">→ / Space to advance · F for fullscreen</div>
+<div class="stage" id="stage">
+
+  <!-- 1 — cover -->
+  <section class="slide cover active">
+    <div class="brandbar"><span class="dot"></span><span>Softpro · GitHub Basics</span></div>
+    <div class="kicker">Day 6 · Part 3 of 3 · ~20 min</div>
+    <h1>How teams build together<br><em>without stepping on each other</em></h1>
+    <p class="lead" style="margin-top:18px">The final piece: <strong>branches</strong>, <strong>merges</strong>, and <strong>pull requests</strong> — the workflow behind every real software team and every open-source project.</p>
+    <div class="footer-note">This is also how you'll contribute to projects and show teamwork to employers.</div>
+  </section>
+
+  <!-- 2 — the problem -->
+  <section class="slide">
+    <div class="kicker">The problem branches solve</div>
+    <h2>Everyone editing the same code = chaos</h2>
+    <p>Imagine five people typing into the <em>same</em> document at once, live. Someone's half-finished feature breaks everyone else. You're scared to experiment because you might break the working version.</p>
+    <p style="margin-top:14px"><strong>Branches fix this.</strong> Each person (or each feature) gets a safe, isolated copy to work in — and the main version stays stable.</p>
+  </section>
+
+  <!-- 3 — what is a branch -->
+  <section class="slide">
+    <div class="kicker">The key concept</div>
+    <h2>A branch = a parallel copy of your code</h2>
+    <div class="grid g2">
+      <div class="card"><h3>🌳 <code>main</code></h3><p>The official, always-working version. You protect this one.</p></div>
+      <div class="card"><h3>🌿 a feature branch</h3><p>A safe sandbox split off from <code>main</code>. Experiment freely — if it breaks, <code>main</code> is untouched.</p></div>
+    </div>
+    <p style="margin-top:16px" class="muted">Analogy: <code>main</code> is the published book. A branch is a <strong>working draft</strong> — you edit the draft, and only merge it back when it's good.</p>
+  </section>
+
+  <!-- 4 — branch/merge SVG (centerpiece) -->
+  <section class="slide">
+    <div class="kicker">Branch, work, merge — visually</div>
+    <h2>The branch &amp; merge graph</h2>
+    <div class="diagram">
+      <svg viewBox="0 0 920 270" role="img" aria-label="A feature branch splits off from main, gets two commits, then merges back">
+        <!-- main line -->
+        <line x1="55" y1="190" x2="700" y2="190" stroke="#e8590c" stroke-width="6" stroke-linecap="round"/>
+        <path d="M700 190 l-18 -9 v18 z" fill="#e8590c"/>
+        <!-- branch up from B -->
+        <path d="M220 190 C 270 190, 300 90, 355 90" fill="none" stroke="#4e6e81" stroke-width="5"/>
+        <!-- feature segment -->
+        <line x1="355" y1="90" x2="480" y2="90" stroke="#4e6e81" stroke-width="5"/>
+        <!-- merge down to M -->
+        <path d="M480 90 C 540 90, 575 190, 620 190" fill="none" stroke="#4e6e81" stroke-width="5"/>
+        <!-- commits on main -->
+        <circle cx="100" cy="190" r="18" fill="#e8590c"/>
+        <circle cx="220" cy="190" r="18" fill="#e8590c"/>
+        <circle cx="620" cy="190" r="20" fill="#d99000"/>
+        <!-- commits on feature -->
+        <circle cx="355" cy="90" r="18" fill="#4e6e81"/>
+        <circle cx="480" cy="90" r="18" fill="#4e6e81"/>
+        <!-- labels -->
+        <text x="100" y="232" text-anchor="middle" class="svg-sub" font-size="13">commit</text>
+        <text x="220" y="232" text-anchor="middle" class="svg-sub" font-size="13">branch off</text>
+        <text x="620" y="234" text-anchor="middle" class="svg-sub" font-size="13">merge commit</text>
+        <text x="417" y="58" text-anchor="middle" class="svg-sub" font-size="13">build the feature safely</text>
+        <text x="715" y="184" class="svg-label" font-size="16" fill="#e8590c">main</text>
+        <text x="355" y="120" text-anchor="middle" class="svg-label" font-size="15" fill="#4e6e81">feature/login</text>
+        <text x="60" y="40" class="svg-label" font-size="17">main stays stable while the feature is built on its own branch</text>
+      </svg>
+    </div>
+    <p style="margin-top:6px" class="muted">Split off <code>main</code> → commit freely on the branch → <strong>merge</strong> it back when it's ready. <code>main</code> was never at risk.</p>
+  </section>
+
+  <!-- 5 — branch commands -->
+  <section class="slide">
+    <div class="kicker">Doing it in commands</div>
+    <h2>Create &amp; switch to a branch</h2>
+    <div class="cmd">
+      <span class="p">$</span> <span class="c">git switch -c</span> feature/login   <span class="o"># create a branch &amp; jump onto it</span><br>
+      <span class="o"># ...edit files, then the normal loop:</span><br>
+      <span class="p">$</span> <span class="c">git add</span> .<br>
+      <span class="p">$</span> <span class="c">git commit -m</span> "Add login form"<br>
+      <span class="p">$</span> <span class="c">git push -u origin</span> feature/login   <span class="o"># push the branch to GitHub</span><br><br>
+      <span class="p">$</span> <span class="c">git switch</span> main          <span class="o"># hop back to main anytime</span>
+    </div>
+    <p style="margin-top:12px" class="muted">Your edits on the branch don't touch <code>main</code> until you merge. Switch between them freely.</p>
+  </section>
+
+  <!-- 6 — merging -->
+  <section class="slide">
+    <div class="kicker">Bringing the work back</div>
+    <h2>Merging the branch into main</h2>
+    <p>When the feature is done and tested, <strong>merge</strong> combines its commits back into <code>main</code>:</p>
+    <div class="cmd">
+      <span class="p">$</span> <span class="c">git switch</span> main         <span class="o"># stand on the branch you're merging INTO</span><br>
+      <span class="p">$</span> <span class="c">git merge</span> feature/login  <span class="o"># pull the feature's work in</span>
+    </div>
+    <p style="margin-top:14px">In practice on GitHub you rarely type this — you click <strong>"Merge pull request"</strong> (next slides). Same idea, with a review step.</p>
+  </section>
+
+  <!-- 7 — merge conflicts -->
+  <section class="slide">
+    <div class="kicker">Don't panic when this happens</div>
+    <h2>Merge conflicts</h2>
+    <p>If two branches changed the <em>same lines</em>, Git can't decide who wins — so it asks <strong>you</strong>. It marks the spot:</p>
+    <div class="cmd">
+      <span class="r">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span><br>
+      greeting = "Hello"          <span class="o"># your version</span><br>
+      <span class="r">=======</span><br>
+      greeting = "Hi there"       <span class="o"># the other branch's version</span><br>
+      <span class="r">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/login</span>
+    </div>
+    <p style="margin-top:12px">Just edit the file to keep what you want, delete the <code>&lt;&lt;&lt; === &gt;&gt;&gt;</code> markers, then <code>add</code> + <code>commit</code>. Conflicts feel scary once, then never again.</p>
+  </section>
+
+  <!-- 8 — pull requests + PR flow -->
+  <section class="slide">
+    <div class="kicker">The heart of GitHub collaboration</div>
+    <h2>Pull Requests (PRs)</h2>
+    <p>A <strong>Pull Request</strong> says: "I finished my branch — please review and merge it." It's where teammates <strong>comment, review, and approve</strong> code <em>before</em> it joins <code>main</code>.</p>
+    <div class="flow">
+      <span class="step"><span class="n">1</span>branch</span><span class="arrow">→</span>
+      <span class="step"><span class="n">2</span>commit</span><span class="arrow">→</span>
+      <span class="step"><span class="n">3</span>push</span><span class="arrow">→</span>
+      <span class="step"><span class="n">4</span>open PR</span><span class="arrow">→</span>
+      <span class="step"><span class="n">5</span>review</span><span class="arrow">→</span>
+      <span class="step"><span class="n">6</span>merge</span>
+    </div>
+    <p style="margin-top:14px" class="muted">PRs are how every team and open-source project ships. "I have 20 merged PRs" is a real signal to employers.</p>
+  </section>
+
+  <!-- 9 — fork & open source -->
+  <section class="slide">
+    <div class="kicker">Contributing to code you don't own</div>
+    <h2>Fork → branch → PR</h2>
+    <div class="grid g3">
+      <div class="card"><h3>🍴 Fork</h3><p>Make your <em>own</em> copy of someone else's repo on GitHub.</p></div>
+      <div class="card"><h3>🌿 Branch &amp; fix</h3><p>Clone your fork, make a branch, fix a bug or add a feature.</p></div>
+      <div class="card"><h3>📨 Pull Request</h3><p>Open a PR back to the original. Maintainer reviews &amp; merges.</p></div>
+    </div>
+    <p style="margin-top:16px">This is <strong>open source</strong>. Even one merged PR to a real project is a portfolio gold-star — proof you can work in someone else's codebase.</p>
+  </section>
+
+  <!-- 10 — the team workflow -->
+  <section class="slide">
+    <div class="kicker">Putting it all together</div>
+    <h2>The everyday team workflow</h2>
+    <ul class="clean">
+      <li><code>git pull</code> on <code>main</code> — start from the latest.</li>
+      <li><code>git switch -c feature/x</code> — branch off for your task.</li>
+      <li>Work → <code>add</code> → <code>commit</code> (repeat) → <code>push</code> the branch.</li>
+      <li>Open a <strong>Pull Request</strong> → teammates review → <strong>merge</strong> into <code>main</code>.</li>
+      <li>Everyone <code>pull</code>s the updated <code>main</code>. Repeat.</li>
+    </ul>
+    <p style="margin-top:12px" class="muted">This single loop runs at basically every software company on earth.</p>
+  </section>
+
+  <!-- 11 — repo as portfolio -->
+  <section class="slide">
+    <div class="kicker">Tie-in with the Career track</div>
+    <h2>Your repo IS your portfolio</h2>
+    <div class="grid g2">
+      <div class="card"><h3>📖 A strong README</h3><p>What it does, a screenshot/demo, how to run it. This is the front page recruiters read.</p></div>
+      <div class="card"><h3>🟩 A green contribution graph</h3><p>Daily commits show consistency. Push the course work every day.</p></div>
+      <div class="card"><h3>📌 Pinned projects</h3><p>Pin your 3 course projects + capstone to your profile.</p></div>
+      <div class="card"><h3>🔀 Visible PRs</h3><p>Branches + PRs show you work like a professional, not just a learner.</p></div>
+    </div>
+  </section>
+
+  <!-- 12 — action -->
+  <section class="slide">
+    <div class="kicker">Your move today</div>
+    <h2>GitHub Action — Day 6</h2>
+    <div class="action">
+      <span class="tag">⏱ ≤ 15 minutes</span>
+      <p>On your course repo: create a branch (<code>git switch -c add-data-structures</code>), add your Day-6 work, push it, and open your <strong>first Pull Request</strong> on github.com. Merge it yourself.</p>
+    </div>
+    <p style="margin-top:16px" class="muted">Bonus: write/upgrade your repo's <code>README.md</code> so the project has a real front page.</p>
+  </section>
+
+  <!-- 13 — close + full recap -->
+  <section class="slide cover">
+    <div class="brandbar"><span class="dot"></span><span>Softpro · GitHub Basics</span></div>
+    <h1>Track &amp; share → branch &amp; merge.<br><em>You now work like a developer.</em></h1>
+    <p class="lead" style="margin-top:18px">3 parts done: <strong>Why GitHub</strong> · <strong>add/commit/push</strong> · <strong>branches &amp; PRs</strong>. Use it on every project from here. 🚀</p>
+    <div class="footer-note">Part 3 of 3 · Day 6 — Branching &amp; Collaboration. From now on: every project lives on GitHub.</div>
+  </section>
+
+</div>
+
+<div class="count" id="count">1 / 13</div>
+<div class="nav"><button id="prev" aria-label="Previous">‹</button><button id="full" aria-label="Fullscreen">⛶</button><button id="next" aria-label="Next">›</button></div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];let i=0;
+  const bar=document.getElementById('bar'),count=document.getElementById('count');
+  function show(n){i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    bar.style.width=((i+1)/slides.length*100)+'%';count.textContent=(i+1)+' / '+slides.length;}
+  function next(){show(i+1)}function prev(){show(i-1)}
+  document.getElementById('next').onclick=next;document.getElementById('prev').onclick=prev;
+  document.getElementById('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key===' ')next();
+    else if(e.key==='ArrowLeft')prev();
+    else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+    else if(e.key==='f'||e.key==='F')document.getElementById('full').click();});
+  document.getElementById('stage').addEventListener('click',e=>{
+    if(e.target.closest('.nav'))return;const x=e.clientX/window.innerWidth;x>0.5?next():prev();});
+  show(0);
+</script>
+</body>
+</html>
