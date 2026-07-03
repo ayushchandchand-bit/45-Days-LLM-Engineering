@@ -57,4 +57,4 @@ for line in example_requirements:
 print()
 print("Key idea: import name != install name sometimes -")
 print("  pip install beautifulsoup4   ->  import bs4")
-print("  pip install google-genai     ->  import google.generativeai")
+print("  pip install google-genai     ->  from google import genai")

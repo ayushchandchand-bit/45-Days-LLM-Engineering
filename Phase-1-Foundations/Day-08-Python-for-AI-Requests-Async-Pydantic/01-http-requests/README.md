@@ -1,6 +1,6 @@
 # 01 — Talking to APIs with `requests`
 
-Every LLM you'll use — Gemini, Groq, an Ollama server — is a **web server**. Your code sends it an
+Every LLM you'll use — Groq, an Ollama server, Gemini — is a **web server**. Your code sends it an
 **HTTP request** and reads back a **response**. The `requests` library is the friendly standard way
 to do that in Python.
 

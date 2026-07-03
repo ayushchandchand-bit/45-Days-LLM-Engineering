@@ -6,7 +6,7 @@ that work on my machine" from "code you'd ship":
   learn to catch failures and respond, instead of crashing. (Every LLM API call in Phase 1 is wrapped
   in `try/except`.)
 - **Modules & pip** — stop reinventing the wheel. Import Python's batteries-included standard library,
-  then install the world's open-source packages from PyPI (this is how you'll add `google-genai`,
+  then install the world's open-source packages from PyPI (this is how you'll add `groq`,
   `requests`, `streamlit`).
 - **OOP (classes)** — bundle related data *and* behaviour into your own types. Every library you'll
   touch (`ChatSession`, `Document`, `Agent`) is built from classes.

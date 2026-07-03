@@ -1,7 +1,7 @@
 """
 Loading secrets from a .env file with python-dotenv.
 
-Demonstrates the safe pattern you'll use for your Gemini key on Day 9:
+Demonstrates the safe pattern you'll use for your Groq key on Day 9:
 keys live in .env (never in code, never in Git), loaded into the environment.
 
 Setup: pip install python-dotenv

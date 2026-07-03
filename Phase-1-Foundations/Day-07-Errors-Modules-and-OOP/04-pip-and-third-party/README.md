@@ -1,7 +1,7 @@
 # 04 — pip & Third-Party Packages
 
 The standard library is huge, but the *real* superpower is **PyPI** (the Python Package Index) — 500k+
-open-source packages you install with **pip**. This is how you'll add `google-genai`, `requests`,
+open-source packages you install with **pip**. This is how you'll add `groq`, `requests`,
 `streamlit`, `chromadb` in the AI track. Almost every line of this course's Phase 1+ depends on it.
 
 ## The workflow
@@ -57,7 +57,7 @@ except ImportError:
 - `pip install` into the wrong Python (use `python -m pip`).
 - Committing without a `requirements.txt` → nobody can reproduce your env.
 - Confusing the **import name** with the **install name** (`pip install beautifulsoup4`, but
-  `import bs4`; `pip install google-genai`, but `import google.generativeai`).
+  `import bs4`; `pip install google-genai`, but `from google import genai`).
 - Installing globally and hitting version conflicts (that's what venvs prevent).
 
 Run the example (no internet needed — it handles the missing package gracefully):

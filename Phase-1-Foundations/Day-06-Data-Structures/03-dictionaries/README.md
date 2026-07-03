@@ -40,7 +40,7 @@ removed = student.pop("marks")    # delete & RETURN the value
   doesn't. Demo the `KeyError`, then the graceful `.get`. They'll use this constantly parsing API data.
 - **`in` checks keys, not values.** `"age" in student` → True; `21 in student` → False. Common
   surprise — call it out.
-- **AI tie-in, hard:** "Every response from Gemini/OpenAI is a nested dict. Today you're learning to
+- **AI tie-in, hard:** "Every response from Groq/OpenAI is a nested dict. Today you're learning to
   read it." That framing makes the module feel essential, because it is.
 
 ## ⚠️ Common mistakes to call out

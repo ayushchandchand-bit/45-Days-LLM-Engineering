@@ -81,7 +81,7 @@ The reversed-string trick gets a reaction — promise "you'll know how that work
 - **Type live:** `print("Line1\nLine2")`, `\t`, `\"`. Then `\\`.
 - **🪟 Windows hook:** `"C:\name"` secretly has `\n`! Show it, then fix with `\\` or `r"C:\Users"`.
 - **Triple quotes = the LLM payoff.** Show the multi-line `prompt = """…"""`. Say: *"this is exactly how
-  you'll write prompts to Gemini in a few weeks."* Ties today's boring topic to the exciting goal.
+  you'll write prompts to Groq in a few weeks."* Ties today's boring topic to the exciting goal.
 - **Check:** "How do you write a 3-line string without typing `\n`?" → triple quotes.
 
 ### Module 05 — len / input / type casting (13 min) · `05-len-input-typecasting/`

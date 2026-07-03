@@ -33,7 +33,7 @@ Works great with a wireless presenter/clicker (its next/prev map to the arrow ke
 | 5 | Client & Server | Ask: "where does Instagram *run* — your phone or somewhere else?" Both! |
 | 6 | Frontend | Point out: *this slide* is HTML + CSS. We'll use Streamlit (Python). |
 | 7 | Backend | "You never see it, but it's in charge." Logic, security, data. |
-| 8 | API | ⭐ Most important for them — calling AI = calling an API. Gemini on Day 9. |
+| 8 | API | ⭐ Most important for them — calling AI = calling an API. Groq on Day 9. |
 | 9 | Database | SQL vs NoSQL; tease vector DBs for Phase 2. |
 | 10 | Like-a-post lifecycle | Walk all 6 steps slowly — this ties every concept together. |
 | 11 | Git & GitHub | "Save game" + teamwork. Their 4 projects will live on GitHub. |

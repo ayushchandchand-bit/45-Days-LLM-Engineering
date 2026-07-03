@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Embeddings Fundamentals · Day 17 · Softpro School of AI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+  :root{
+    --bg:#211f1d; --slide:#ffffff; --cream:#fbf1e6; --cream2:#fdf8f1;
+    --ink:#2c2a28; --ink-soft:#4f463f; --muted:#8a7f73; --line:#efe3d4;
+    --primary:#e8590c; --primary2:#fb8b3d; --gold:#d99000; --steel:#4e6e81; --olive:#6b8e23; --berry:#c0392b;
+    --radius:24px;
+    --shadow:0 30px 80px -20px rgba(20,12,4,.45),0 8px 24px -12px rgba(20,12,4,.3);
+    --font:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono","Cascadia Code",Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased;
+    background:radial-gradient(900px 600px at 12% 0%,#2e2a25 0%,transparent 55%),
+               radial-gradient(900px 600px at 100% 100%,#2a201a 0%,transparent 55%),var(--bg);
+    overflow:hidden}
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:clamp(12px,3vh,44px)}
+  .slide{display:none;width:min(1160px,96vw);height:min(700px,92vh);background:
+      radial-gradient(1100px 480px at 88% -12%,rgba(232,89,12,.06),transparent 60%),var(--slide);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(28px,5vw,60px);
+    overflow:hidden;position:relative;flex-direction:column;justify-content:center}
+  .slide.active{display:flex;animation:rise .5s cubic-bezier(.2,.7,.2,1)}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .slide.active>*{animation:fade .6s both}.slide.active>*:nth-child(2){animation-delay:.07s}
+  .slide.active>*:nth-child(3){animation-delay:.14s}.slide.active>*:nth-child(4){animation-delay:.21s}
+  .slide.active>*:nth-child(5){animation-delay:.28s}.slide.active>*:nth-child(6){animation-delay:.35s}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .kicker{font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--primary);margin-bottom:14px}
+  h1{font-size:clamp(2.1rem,5.2vw,3.5rem);font-weight:800;line-height:1.05;letter-spacing:-.02em}
+  h2{font-size:clamp(1.6rem,3.6vw,2.4rem);font-weight:800;line-height:1.1;letter-spacing:-.01em;margin-bottom:18px}
+  p{font-size:clamp(1rem,1.7vw,1.22rem);color:var(--ink-soft);line-height:1.6;max-width:62ch}
+  .lead{font-size:clamp(1.1rem,2vw,1.4rem)}
+  .big{font-size:clamp(2.4rem,6vw,4rem);font-weight:800;color:var(--primary);line-height:1}
+  strong{color:var(--ink)}.muted{color:var(--muted)}
+  .grid{display:grid;gap:16px;margin-top:8px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+  .card{background:var(--cream);border:1px solid var(--line);border-radius:18px;padding:18px 20px;transition:transform .2s,box-shadow .2s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 14px 30px -16px rgba(20,12,4,.35)}
+  .card h3{font-size:1.08rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card p{font-size:.96rem;max-width:none}
+  .num{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;border-radius:9px;
+    background:var(--primary);color:#fff;font-weight:800;font-size:.95rem;margin-right:4px}
+  .emoji{font-size:1.3rem}
+  .pill{display:inline-block;background:var(--cream);border:1px solid var(--line);border-radius:999px;
+    padding:7px 16px;font-size:.92rem;font-weight:600;color:var(--ink-soft);margin:5px 6px 0 0}
+  ul.clean{list-style:none;margin-top:10px}
+  ul.clean li{font-size:clamp(1rem,1.7vw,1.18rem);color:var(--ink-soft);line-height:1.5;padding:8px 0 8px 34px;position:relative}
+  ul.clean li::before{content:"";position:absolute;left:0;top:15px;width:14px;height:14px;border-radius:50%;
+    background:var(--primary);box-shadow:0 0 0 4px rgba(232,89,12,.15)}
+  ul.clean li.x::before{background:var(--berry);box-shadow:0 0 0 4px rgba(192,57,43,.15)}
+  ul.clean li.ok::before{background:var(--olive);box-shadow:0 0 0 4px rgba(107,142,35,.15)}
+  .fx{font-family:var(--mono);font-size:1rem;background:var(--cream);border:1px solid var(--line);
+    border-radius:14px;padding:16px 18px;margin-top:10px;color:var(--ink);line-height:1.7;white-space:pre}
+  .action{background:linear-gradient(135deg,#fff,var(--cream2));border:2px solid var(--primary);
+    border-radius:20px;padding:22px 24px;margin-top:14px}
+  .action .tag{font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--primary)}
+  .action p{font-size:1.12rem;color:var(--ink);font-weight:600;margin-top:6px;max-width:none}
+  .eg{background:var(--cream2);border:1px solid var(--line);border-left:4px solid var(--gold);
+    border-radius:12px;padding:13px 16px;margin-top:14px}
+  .eg .tag{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:5px}
+  .eg p{font-size:.98rem;max-width:none;margin:0;color:var(--ink-soft)}
+  .eg .mono{font-family:var(--mono)}
+  .eg code,.card code{font-family:var(--mono);background:rgba(217,144,0,.12);padding:1px 5px;border-radius:5px;font-size:.9em;color:var(--ink)}
+  .card .ex{display:block;margin-top:8px;font-family:var(--mono);font-size:.82rem;color:var(--steel);
+    background:var(--cream2);border-radius:8px;padding:6px 9px;white-space:pre-wrap;line-height:1.5}
+  .cover{background:radial-gradient(1200px 500px at 20% -10%,rgba(232,89,12,.16),transparent 60%),
+      radial-gradient(900px 500px at 100% 120%,rgba(217,144,0,.12),transparent 55%),var(--slide)}
+  .brandbar{display:flex;align-items:center;gap:10px;margin-bottom:auto}
+  .dot{width:13px;height:13px;border-radius:50%;background:var(--primary)}
+  .brandbar span{font-weight:700;letter-spacing:.02em}
+  .cover h1 em{font-style:normal;color:var(--primary)}
+  .footer-note{margin-top:auto;color:var(--muted);font-size:.95rem}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:center}
+  .label{font-size:.82rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .bar{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--primary),var(--primary2));z-index:9;transition:width .3s}
+  .count{position:fixed;left:18px;bottom:14px;color:var(--cream);font-size:.85rem;font-weight:600;opacity:.8;z-index:9;font-variant-numeric:tabular-nums}
+  .nav{position:fixed;right:18px;bottom:14px;display:flex;gap:8px;z-index:9}
+  .nav button{width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.08);color:#fff;font-size:1.1rem;cursor:pointer;backdrop-filter:blur(8px);transition:background .2s}
+  .nav button:hover{background:rgba(255,255,255,.2)}
+  .hint{position:fixed;right:18px;top:16px;color:var(--cream);font-size:.78rem;opacity:.5;z-index:9}
+  /* --- deck-specific: diagrams --- */
+  .diagram{display:flex;justify-content:center;align-items:center;margin-top:8px}
+  .diagram svg{max-width:100%;height:auto}
+  .cap{text-align:center;color:var(--muted);font-size:.9rem;margin-top:6px}
+  .vrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .vbox{font-family:var(--mono);font-size:.82rem;background:var(--cream);border:1px solid var(--line);
+    border-radius:8px;padding:8px 10px;color:var(--ink);min-width:62px;text-align:center}
+  .vbox.more{background:transparent;border-style:dashed;color:var(--muted)}
+  .scores{margin-top:12px;display:flex;flex-direction:column;gap:9px}
+  .scorerow{display:flex;align-items:center;gap:12px}
+  .scorerow .nm{flex:0 0 270px;font-size:.92rem;color:var(--ink-soft)}
+  .scorerow .track{flex:1;height:26px;background:var(--cream);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .scorerow .fill{height:100%;background:linear-gradient(90deg,var(--primary2),var(--primary));border-radius:8px 0 0 8px}
+  .scorerow .fill.low{background:linear-gradient(90deg,#cfc4b4,#b6a994)}
+  .scorerow .vv{flex:0 0 54px;text-align:right;font-family:var(--mono);font-weight:600;color:var(--ink)}
+  @media(max-width:640px){.g2,.g3,.twocol{grid-template-columns:1fr}.scorerow .nm{flex:0 0 150px}}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="hint">→ / Space to advance · F for fullscreen</div>
+<div class="stage" id="stage">
+
+  <!-- 1 COVER -->
+  <section class="slide cover active">
+    <div class="brandbar"><span class="dot"></span><span>Softpro School of AI · Day 17</span></div>
+    <div class="kicker">Phase 2 · RAG &amp; Memory</div>
+    <h1>Embeddings:<br>turning <em>meaning</em> into numbers</h1>
+    <p class="lead" style="margin-top:18px">How does a computer find the <em>right</em> note out of thousands when none of them share your exact words? It stops matching letters and starts matching <strong>meaning</strong>. That trick is an embedding.</p>
+    <div class="footer-note">Text in &rarr; numbers out &rarr; similar meaning sits close together.</div>
+  </section>
+
+  <!-- 2 THE PROBLEM -->
+  <section class="slide">
+    <div class="kicker">Why we need this</div>
+    <h2>Keyword search matches letters, not meaning</h2>
+    <p>You search your notes for <strong>"motor vehicle"</strong>. A note says <strong>"the automobile won't start"</strong> — clearly relevant. But it shares <em>zero words</em> with your search, so plain keyword search <strong>misses it</strong>.</p>
+    <div class="grid g2" style="margin-top:8px">
+      <div class="card"><h3>🔤 Keyword search</h3><p>Matches if the <em>same letters</em> appear. "automobile" ≠ "motor vehicle" → no match. Misses synonyms, paraphrases, typos.</p></div>
+      <div class="card"><h3>🧠 Semantic search</h3><p>Matches if the <em>meaning</em> is close. "automobile" ≈ "motor vehicle" → strong match. This is what embeddings unlock.</p></div>
+    </div>
+    <div class="eg">
+      <span class="tag">The whole phase rests on this</span>
+      <p>Search, RAG, document Q&amp;A (your next project) — all of it is "embed everything, then find the nearest vectors." Today is the foundation.</p>
+    </div>
+  </section>
+
+  <!-- 3 THE BIG IDEA -->
+  <section class="slide">
+    <div class="kicker">The one big idea</div>
+    <h2>An embedding = text turned into a list of numbers</h2>
+    <p>An <strong>embedding</strong> is a list of numbers (a <strong>vector</strong>) that stands in for a piece of text. The magic is <em>how</em> the numbers are chosen:</p>
+    <div class="action">
+      <span class="tag">Remember this one line</span>
+      <p>Similar meaning &rarr; similar numbers &rarr; close together in space.</p>
+    </div>
+    <div class="vrow" style="margin-top:18px">
+      <span class="muted" style="align-self:center;margin-right:6px">"I love AI"&nbsp;&rarr;</span>
+      <span class="vbox">-0.01</span><span class="vbox">+0.07</span><span class="vbox">+0.02</span>
+      <span class="vbox">-0.05</span><span class="vbox">+0.09</span><span class="vbox more">… 384 numbers</span>
+    </div>
+    <p class="cap" style="margin-top:10px">That row of numbers <em>is</em> the embedding. You won't read meaning in them — but the computer can compare them.</p>
+  </section>
+
+  <!-- 4 MEANING AS COORDINATES (SVG MAP) -->
+  <section class="slide">
+    <div class="kicker">Build the intuition</div>
+    <h2>Think of meaning as a map</h2>
+    <div class="twocol">
+      <div>
+        <p>Pretend we describe each word with just <strong>2 numbers</strong>:</p>
+        <ul class="clean" style="margin-top:6px">
+          <li>how <strong>animal</strong> is it? (left&rarr;right)</li>
+          <li>how <strong>vehicle</strong> is it? (bottom&rarr;top)</li>
+        </ul>
+        <p style="margin-top:10px">Now every word is a <strong>point</strong>. <code>cat</code> and <code>dog</code> land together; <code>car</code> and <code>truck</code> land together — far away. <strong>Close on the map = close in meaning.</strong></p>
+      </div>
+      <div class="diagram">
+        <svg viewBox="0 0 480 340" width="480" height="340" role="img" aria-label="2-D meaning map with cat, dog near one corner and car, truck near another">
+          <!-- axes -->
+          <line x1="60" y1="300" x2="460" y2="300" stroke="#cdbfae" stroke-width="2"/>
+          <line x1="60" y1="300" x2="60" y2="30" stroke="#cdbfae" stroke-width="2"/>
+          <text x="250" y="332" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="14" fill="#8a7f73">animal-ness &rarr;</text>
+          <text x="22" y="165" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="14" fill="#8a7f73" transform="rotate(-90 22 165)">vehicle-ness &rarr;</text>
+          <!-- group halos -->
+          <ellipse cx="400" cy="261" rx="60" ry="46" fill="rgba(107,142,35,.12)" stroke="#6b8e23" stroke-dasharray="5 5"/>
+          <ellipse cx="120" cy="79" rx="60" ry="46" fill="rgba(78,110,129,.12)" stroke="#4e6e81" stroke-dasharray="5 5"/>
+          <!-- points: cat(0.9,0.1) dog(0.8,0.2) car(0.1,0.9) truck(0.2,0.8) -->
+          <g font-family="Plus Jakarta Sans" font-size="14" font-weight="700">
+            <circle cx="420" cy="274" r="8" fill="#6b8e23"/><text x="432" y="279" fill="#2c2a28">cat</text>
+            <circle cx="380" cy="248" r="8" fill="#6b8e23"/><text x="392" y="253" fill="#2c2a28">dog</text>
+            <circle cx="100" cy="66" r="8" fill="#4e6e81"/><text x="112" y="71" fill="#2c2a28">car</text>
+            <circle cx="140" cy="92" r="8" fill="#4e6e81"/><text x="152" y="97" fill="#2c2a28">truck</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <p class="cap">Module 01 builds exactly this with 2 hand-made numbers — no libraries, pure Python.</p>
+  </section>
+
+  <!-- 5 FROM 2 TO 384 -->
+  <section class="slide">
+    <div class="kicker">From toy to real</div>
+    <h2>Real text needs more than 2 features</h2>
+    <p>We hand-picked "animal-ness" and "vehicle-ness" just to <em>see</em> the idea. Real language has countless shades of meaning — is it formal? past tense? about money? happy?</p>
+    <div class="grid g3" style="margin-top:6px">
+      <div class="card"><h3>✋ Our toy</h3><p><strong>2</strong> features, chosen by hand. Good for a picture, useless for real text.</p></div>
+      <div class="card"><h3>🤖 A trained model</h3><p>Picks <strong>hundreds</strong> of features <em>for you</em>, learned from billions of sentences.</p></div>
+      <div class="card"><h3>📏 Our model today</h3><p><code>all-MiniLM-L6-v2</code> &rarr; <strong>384</strong> numbers per text. Free, runs on your laptop.</p></div>
+    </div>
+    <div class="eg">
+      <span class="tag">Same idea, more dimensions</span>
+      <p>2 numbers = a point on a flat map. 384 numbers = a point in "384-dimensional space." We can't picture it — but the math of "who's nearest" works exactly the same.</p>
+    </div>
+  </section>
+
+  <!-- 6 YOUR FIRST EMBEDDING -->
+  <section class="slide">
+    <div class="kicker">Module 02 · in code</div>
+    <h2>Your first real embedding — 3 lines</h2>
+    <div class="twocol">
+      <div>
+        <div class="fx">from sentence_transformers \
+  import SentenceTransformer
+
+model = SentenceTransformer(
+    "all-MiniLM-L6-v2")
+
+vec = model.encode("I love AI")</div>
+      </div>
+      <div>
+        <ul class="clean" style="margin-top:0">
+          <li><strong>Free &amp; local</strong> — no API key, runs offline after a one-time download.</li>
+          <li><code>vec.shape</code> is <strong>(384,)</strong> — 384 decimal numbers.</li>
+          <li>Pass a <strong>list</strong> of texts to embed many at once.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="vrow" style="margin-top:14px">
+      <span class="vbox">-0.000</span><span class="vbox">-0.073</span><span class="vbox">+0.022</span>
+      <span class="vbox">+0.005</span><span class="vbox">+0.087</span><span class="vbox">-0.024</span>
+      <span class="vbox more">… up to 384</span>
+    </div>
+    <p class="cap">Real output from <code>first_embedding.py</code>. The numbers look like noise — the next slide shows they're not.</p>
+  </section>
+
+  <!-- 7 SIMILAR = NEARBY -->
+  <section class="slide">
+    <div class="kicker">Module 03 · the payoff</div>
+    <h2>Similar meaning lands nearby</h2>
+    <p>Embed a question and a few documents. The <strong>vehicle</strong> sentences sit close to "How does a motor vehicle work?" — including the <em>"automobile"</em> one with no shared words. The pasta &amp; plant sentences sit far away.</p>
+    <div class="diagram">
+      <svg viewBox="0 0 760 250" width="760" height="250" role="img" aria-label="Query vector close to two vehicle documents, far from unrelated documents">
+        <g font-family="Plus Jakarta Sans" font-size="13" font-weight="700">
+          <!-- query -->
+          <circle cx="300" cy="125" r="11" fill="#e8590c"/>
+          <text x="300" y="100" text-anchor="middle" fill="#e8590c">query: "motor vehicle"</text>
+          <!-- near docs -->
+          <line x1="300" y1="125" x2="360" y2="80" stroke="#6b8e23" stroke-width="2"/>
+          <line x1="300" y1="125" x2="372" y2="160" stroke="#6b8e23" stroke-width="2"/>
+          <circle cx="360" cy="80" r="9" fill="#6b8e23"/><text x="374" y="76" fill="#2c2a28">"a car for the road"</text>
+          <circle cx="372" cy="160" r="9" fill="#6b8e23"/><text x="386" y="164" fill="#2c2a28">"an automobile takes you places"</text>
+          <!-- far docs -->
+          <line x1="300" y1="125" x2="120" y2="55" stroke="#cdbfae" stroke-width="2" stroke-dasharray="4 4"/>
+          <line x1="300" y1="125" x2="120" y2="205" stroke="#cdbfae" stroke-width="2" stroke-dasharray="4 4"/>
+          <circle cx="120" cy="55" r="9" fill="#b6a994"/><text x="108" y="48" text-anchor="end" fill="#8a7f73">"a pasta dinner"</text>
+          <circle cx="120" cy="205" r="9" fill="#b6a994"/><text x="108" y="210" text-anchor="end" fill="#8a7f73">"plants make food"</text>
+        </g>
+      </svg>
+    </div>
+    <p class="cap"><strong>Green = close in meaning</strong> (high score). Grey dashed = far. That's semantic search.</p>
+  </section>
+
+  <!-- 8 HOW DO WE MEASURE CLOSE -->
+  <section class="slide">
+    <div class="kicker">Module 04 · the measure</div>
+    <h2>How do we measure "close"?</h2>
+    <p>We compare the <strong>direction</strong> two vectors point. Same direction = same meaning. This is <strong>cosine similarity</strong> — it looks at the <em>angle</em>, ignoring how long the arrows are.</p>
+    <div class="twocol">
+      <div class="diagram">
+        <svg viewBox="0 0 300 220" width="300" height="220" role="img" aria-label="Two arrows with a small angle, meaning similar">
+          <line x1="40" y1="190" x2="250" y2="80" stroke="#e8590c" stroke-width="3"/>
+          <line x1="40" y1="190" x2="240" y2="120" stroke="#fb8b3d" stroke-width="3"/>
+          <path d="M 110 161 A 70 70 0 0 1 128 150" fill="none" stroke="#6b8e23" stroke-width="3"/>
+          <text x="150" y="205" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="14" font-weight="700" fill="#6b8e23">small angle</text>
+          <text x="150" y="40" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="14" fill="#2c2a28">similar &rarr; score near +1</text>
+        </svg>
+      </div>
+      <div class="diagram">
+        <svg viewBox="0 0 300 220" width="300" height="220" role="img" aria-label="Two arrows with a large angle, meaning different">
+          <line x1="40" y1="190" x2="250" y2="170" stroke="#e8590c" stroke-width="3"/>
+          <line x1="40" y1="190" x2="90" y2="40" stroke="#4e6e81" stroke-width="3"/>
+          <path d="M 95 178 A 60 60 0 0 0 70 140" fill="none" stroke="#c0392b" stroke-width="3"/>
+          <text x="150" y="205" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="14" font-weight="700" fill="#c0392b">big angle</text>
+          <text x="150" y="40" text-anchor="middle" font-family="Plus Jakarta Sans" font-size="14" fill="#2c2a28">different &rarr; score near 0</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 THE FORMULA -->
+  <section class="slide">
+    <div class="kicker">Don't fear the formula</div>
+    <h2>Cosine similarity, in plain words</h2>
+    <div class="twocol">
+      <div>
+        <div class="fx">cosine(a, b) =
+   (a · b)
+  -----------
+  |a| × |b|</div>
+        <p style="margin-top:12px">In numpy it's <strong>one line</strong>:</p>
+        <div class="fx">np.dot(a, b) /
+  (np.linalg.norm(a) *
+   np.linalg.norm(b))</div>
+      </div>
+      <div>
+        <ul class="clean" style="margin-top:0">
+          <li><strong>a · b</strong> (dot product) — multiply matching numbers, add them all up.</li>
+          <li><strong>|a|</strong> (norm) — the arrow's length: <code>sqrt(sum of squares)</code>.</li>
+          <li>Divide by both lengths so only <strong>direction</strong> matters.</li>
+        </ul>
+        <div class="eg">
+          <span class="tag">Shortcut you'll use a lot</span>
+          <p>Our model returns <strong>unit-length</strong> vectors (length = 1). Then the dividing does nothing, so <strong>cosine = just the dot product</strong>. That's why vector databases are fast.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 THE SCALE -->
+  <section class="slide">
+    <div class="kicker">Reading the score</div>
+    <h2>One number, from −1 to +1</h2>
+    <div class="diagram" style="margin-top:14px">
+      <svg viewBox="0 0 720 150" width="720" height="150" role="img" aria-label="Cosine similarity scale from minus one to plus one">
+        <defs><linearGradient id="cscale" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#c0392b"/><stop offset="50%" stop-color="#cdbfae"/><stop offset="100%" stop-color="#6b8e23"/>
+        </linearGradient></defs>
+        <rect x="40" y="50" width="640" height="26" rx="13" fill="url(#cscale)"/>
+        <g font-family="Plus Jakarta Sans" font-size="14" font-weight="700" fill="#2c2a28" text-anchor="middle">
+          <line x1="40" y1="44" x2="40" y2="82" stroke="#2c2a28" stroke-width="2"/><text x="40" y="104">−1.0</text>
+          <line x1="360" y1="44" x2="360" y2="82" stroke="#2c2a28" stroke-width="2"/><text x="360" y="104">0.0</text>
+          <line x1="680" y1="44" x2="680" y2="82" stroke="#2c2a28" stroke-width="2"/><text x="680" y="104">+1.0</text>
+        </g>
+        <g font-family="Plus Jakarta Sans" font-size="13" fill="#4f463f" text-anchor="middle">
+          <text x="40" y="30">opposite</text>
+          <text x="360" y="30">unrelated</text>
+          <text x="680" y="30">identical meaning</text>
+        </g>
+      </svg>
+    </div>
+    <div class="eg">
+      <span class="tag">In practice with this model</span>
+      <p>Related text scores roughly <strong>0.3 – 0.9</strong>; unrelated text scores near <strong>0</strong>. Compare scores <em>within the same set</em> to find the best match — a single score isn't a "grade out of 1".</p>
+    </div>
+  </section>
+
+  <!-- 11 WORKED RANKING -->
+  <section class="slide">
+    <div class="kicker">Putting it together</div>
+    <h2>Ranking documents by meaning</h2>
+    <p style="margin-bottom:4px">Query: <strong>"How does a motor vehicle work?"</strong> — real scores from <code>compare.py</code>:</p>
+    <div class="scores">
+      <div class="scorerow"><span class="nm">"an automobile takes you places"</span><span class="track"><span class="fill" style="width:92%"></span></span><span class="vv">0.642</span></div>
+      <div class="scorerow"><span class="nm">"a car is a road vehicle"</span><span class="track"><span class="fill" style="width:79%"></span></span><span class="vv">0.550</span></div>
+      <div class="scorerow"><span class="nm">"photosynthesis lets plants eat"</span><span class="track"><span class="fill low" style="width:14%"></span></span><span class="vv">0.100</span></div>
+      <div class="scorerow"><span class="nm">"the chef cooked pasta"</span><span class="track"><span class="fill low" style="width:2%"></span></span><span class="vv">0.001</span></div>
+    </div>
+    <p style="margin-top:14px" class="muted"><strong>"automobile" wins with zero shared words.</strong> Return the top-scoring doc and you've built semantic search — the heart of next week's Document Q&amp;A.</p>
+  </section>
+
+  <!-- 12 LOCAL VS CLOUD -->
+  <section class="slide">
+    <div class="kicker">Module 05 · providers</div>
+    <h2>Local model vs cloud API</h2>
+    <p>We default to a <strong>free, local</strong> model. A cloud API (like Gemini) does the same job — the code shape is identical, only the line that makes the vector changes.</p>
+    <div class="grid g2" style="margin-top:6px">
+      <div class="card"><h3>💻 Local · sentence-transformers</h3><p><strong>Free</strong>, private (text never leaves your machine), works offline. 384 numbers. <em>Our default all course.</em></p></div>
+      <div class="card"><h3>☁️ Cloud · Gemini</h3><p>Free tier then paid, needs internet + an API key, sends text to Google. Bigger vectors (768–3072). Optional.</p></div>
+    </div>
+    <div class="action">
+      <span class="tag">The real lesson</span>
+      <p>The provider is swappable — the retrieval math (cosine, nearest-neighbour) is exactly the same either way.</p>
+    </div>
+  </section>
+
+  <!-- 13 WHERE THIS GOES -->
+  <section class="slide">
+    <div class="kicker">The road ahead</div>
+    <h2>This is the engine of RAG</h2>
+    <div class="diagram" style="margin-top:6px">
+      <svg viewBox="0 0 860 230" width="860" height="230" role="img" aria-label="RAG pipeline: documents and question both get embedded, then nearest match becomes the answer">
+        <g font-family="Plus Jakarta Sans" font-size="13" font-weight="700" text-anchor="middle">
+          <!-- top row: docs -->
+          <rect x="20" y="30" width="120" height="44" rx="10" fill="#fbf1e6" stroke="#efe3d4"/><text x="80" y="57" fill="#2c2a28">your docs</text>
+          <rect x="190" y="30" width="120" height="44" rx="10" fill="#fde7d6" stroke="#e8590c"/><text x="250" y="57" fill="#e8590c">embed</text>
+          <rect x="360" y="30" width="150" height="44" rx="10" fill="#fbf1e6" stroke="#efe3d4"/><text x="435" y="57" fill="#2c2a28">vectors in DB</text>
+          <line x1="140" y1="52" x2="186" y2="52" stroke="#8a7f73" stroke-width="2" marker-end="url(#ar)"/>
+          <line x1="310" y1="52" x2="356" y2="52" stroke="#8a7f73" stroke-width="2" marker-end="url(#ar)"/>
+          <!-- bottom row: question -->
+          <rect x="20" y="150" width="120" height="44" rx="10" fill="#fbf1e6" stroke="#efe3d4"/><text x="80" y="177" fill="#2c2a28">question</text>
+          <rect x="190" y="150" width="120" height="44" rx="10" fill="#fde7d6" stroke="#e8590c"/><text x="250" y="177" fill="#e8590c">embed</text>
+          <rect x="360" y="150" width="150" height="44" rx="10" fill="#fbf1e6" stroke="#efe3d4"/><text x="435" y="177" fill="#2c2a28">query vector</text>
+          <line x1="140" y1="172" x2="186" y2="172" stroke="#8a7f73" stroke-width="2" marker-end="url(#ar)"/>
+          <line x1="310" y1="172" x2="356" y2="172" stroke="#8a7f73" stroke-width="2" marker-end="url(#ar)"/>
+          <!-- converge -->
+          <rect x="560" y="90" width="140" height="44" rx="10" fill="#eef3f1" stroke="#6b8e23"/><text x="630" y="117" fill="#3f5a18">cosine: nearest</text>
+          <line x1="510" y1="52" x2="556" y2="104" stroke="#8a7f73" stroke-width="2" marker-end="url(#ar)"/>
+          <line x1="510" y1="172" x2="556" y2="120" stroke="#8a7f73" stroke-width="2" marker-end="url(#ar)"/>
+          <rect x="740" y="90" width="100" height="44" rx="10" fill="#fde7d6" stroke="#e8590c"/><text x="790" y="117" fill="#e8590c">answer</text>
+          <line x1="700" y1="112" x2="736" y2="112" stroke="#8a7f73" stroke-width="2" marker-end="url(#ar)"/>
+        </g>
+        <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8a7f73"/></marker></defs>
+      </svg>
+    </div>
+    <p class="cap"><strong>Day 18:</strong> store vectors in Chroma, retrieve them, and chat with AI. <strong>Day 19:</strong> move that idea to pgvector in Postgres. Today you learned the box that says "embed".</p>
+  </section>
+
+  <!-- 14 RECAP -->
+  <section class="slide">
+    <div class="kicker">Recap</div>
+    <h2>Five things to walk away with</h2>
+    <ul class="clean">
+      <li><strong>Embedding</strong> = text turned into a list of numbers (a vector).</li>
+      <li><strong>Similar meaning &rarr; nearby vectors</strong> — even with zero shared words.</li>
+      <li><code>all-MiniLM-L6-v2</code> gives <strong>384 numbers</strong>, free and local.</li>
+      <li><strong>Cosine similarity</strong> scores closeness from −1 to +1 (higher = more alike).</li>
+      <li>This is the engine of <strong>semantic search and RAG</strong> — the rest of the phase.</li>
+    </ul>
+  </section>
+
+  <!-- 15 YOUR MOVE -->
+  <section class="slide">
+    <div class="kicker">Your move today</div>
+    <h2>Run the modules, then the exercises</h2>
+    <div class="action">
+      <span class="tag">⏱ Practice now</span>
+      <p>Work through <code>01 &rarr; 05</code> in order, then open <code>exercises/</code>: build a <strong>semantic search</strong> ("most similar note") and an <strong>odd-one-out</strong> finder using cosine similarity yourself.</p>
+    </div>
+    <div style="margin-top:16px">
+      <span class="pill">01 · what is an embedding</span><span class="pill">02 · first embedding</span><span class="pill">03 · similar vs different</span><span class="pill">04 · cosine similarity</span><span class="pill">05 · cloud (optional)</span>
+    </div>
+  </section>
+
+  <!-- 16 CLOSE -->
+  <section class="slide cover">
+    <div class="brandbar"><span class="dot"></span><span>Softpro School of AI · Day 17</span></div>
+    <h1>Meaning is just<br>a <em>point in space.</em></h1>
+    <p class="lead" style="margin-top:18px">Once text is numbers, "find what's relevant" becomes "find what's nearest." That single shift powers every search, chatbot-with-memory, and RAG app you'll build.</p>
+    <div class="footer-note">Next (Day 18): Chroma vector DB — save vectors, retrieve them, and chat with AI.</div>
+  </section>
+
+</div>
+
+<div class="count" id="count">1 / 16</div>
+<div class="nav"><button id="prev" aria-label="Previous">‹</button><button id="full" aria-label="Fullscreen">⛶</button><button id="next" aria-label="Next">›</button></div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];let i=0;
+  const bar=document.getElementById('bar'),count=document.getElementById('count');
+  function show(n){i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    bar.style.width=((i+1)/slides.length*100)+'%';count.textContent=(i+1)+' / '+slides.length;}
+  function next(){show(i+1)}function prev(){show(i-1)}
+  document.getElementById('next').onclick=next;document.getElementById('prev').onclick=prev;
+  document.getElementById('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key===' ')next();
+    else if(e.key==='ArrowLeft')prev();
+    else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+    else if(e.key==='f'||e.key==='F')document.getElementById('full').click();});
+  document.getElementById('stage').addEventListener('click',e=>{
+    if(e.target.closest('.nav'))return;const x=e.clientX/window.innerWidth;x>0.5?next():prev();});
+  show(0);
+</script>
+</body>
+</html>

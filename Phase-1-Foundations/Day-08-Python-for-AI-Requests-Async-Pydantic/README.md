@@ -39,4 +39,4 @@ python 02-async-basics/async_basics.py
 **Validate a user profile** with Pydantic, and **fetch + parse** live data from a public API.
 See [`exercises/`](exercises/).
 
-➡ Next (Day 9): your **first Gemini API call** — tokens, context windows, temperature.
+➡ Next (Day 9): your **first Groq API call** — tokens, context windows, temperature.

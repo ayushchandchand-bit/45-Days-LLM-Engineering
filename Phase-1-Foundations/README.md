@@ -20,13 +20,13 @@ skills the AI track depends on (clean functions, data structures, error handling
 
 ## Days 8–15 — First LLM app
 - **Day 08** — Python for AI: `requests`, async basics, `.env` config, Pydantic, type hints
-- **Day 09** — LLM fundamentals (tokens, context, sampling) + **first Gemini call**
+- **Day 09** — LLM fundamentals (tokens, context, sampling) + **first Groq call**
 - **Day 10** — Prompt engineering I: system prompts, zero-/few-shot, chain-of-thought
 - **Day 11** — Prompt engineering II: structured outputs with Pydantic, JSON mode
-- **Day 12** — Multi-provider patterns: Gemini / Groq / Ollama behind one abstraction
+- **Day 12** — Multi-provider patterns: Groq / Ollama / Gemini behind one abstraction
 - **Day 13** — Working with data: JSON, CSV, PDF, lightweight scraping
 - **Day 14** — Streamlit crash course + error handling, retries, rate limits, cost
 - **Day 15** — Mini-project 1 build + deploy + demo
 
 **Mini-project 1 — AI Content Summarizer:** PDF / article URL / transcript in → structured
-summary (key points, TL;DR, action items) out. Stack: Streamlit + Gemini + Python. Deployed free.
+summary (key points, TL;DR, action items) out. Stack: Streamlit + Groq + Python. Deployed free.
