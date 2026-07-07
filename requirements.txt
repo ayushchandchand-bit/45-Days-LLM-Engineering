@@ -25,3 +25,8 @@ chromadb                   # vector database: persist embeddings, retrieve neare
 # --- Phase 2 · Day 19 — Streamlit (web UI for our apps) ---
 streamlit                  # turn a Python script into a web app: `streamlit run app.py`
 # pulls in pandas (tables) + altair automatically; groq + python-dotenv reused for the chat app
+
+# --- Phase 2 · Day 20 — Mini-Project 1: Chat With Your Documents ---
+pypdf                      # read text from .pdf uploads
+python-docx                # read text from .docx uploads (note: pip name python-docx, import name docx)
+# reuses streamlit + chromadb + sentence-transformers + groq + python-dotenv (all listed above)
