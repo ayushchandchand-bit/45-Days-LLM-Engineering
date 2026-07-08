@@ -1,0 +1,6 @@
+# Day 19 - Streamlit From Scratch
+# Install with:  pip install -r requirements.txt
+
+streamlit          # the web-app framework (installs pandas, altair, etc. too)
+groq               # module 07 + the summarizer exercise - needs GROQ_API_KEY
+python-dotenv      # load GROQ_API_KEY from a local .env file

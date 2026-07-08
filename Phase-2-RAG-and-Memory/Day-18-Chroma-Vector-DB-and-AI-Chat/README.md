@@ -71,6 +71,6 @@ Build:
 See [`exercises/`](exercises/).
 
 > Day 17 taught you what embeddings are. Day 18 turns them into a persistent retrieval system. Day
-> 19 moves the same idea from local Chroma to cloud Postgres with `pgvector`.
+> 19 gives your AI a face: a Streamlit web app, so retrieval is no longer a terminal-only tool.
 
-➡ Next (Day 19): pgvector via Supabase — move local retrieval into cloud Postgres.
+➡ Next (Day 19): Streamlit from scratch — turn your Python scripts into real web apps.

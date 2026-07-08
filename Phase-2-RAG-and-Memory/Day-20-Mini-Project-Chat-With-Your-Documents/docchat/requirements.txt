@@ -1,0 +1,11 @@
+# Mini-Project 1 - Chat With Your Documents
+# Install with the real CPython (see the repo CLAUDE.md), then:
+#   pip install -r requirements.txt
+
+streamlit               # web UI
+groq                    # LLM (needs GROQ_API_KEY in a .env file)
+python-dotenv           # load GROQ_API_KEY from .env
+sentence-transformers   # local, free embeddings (all-MiniLM-L6-v2)
+chromadb                # vector store: save + retrieve chunk embeddings
+pypdf                   # read text from .pdf uploads
+python-docx             # read text from .docx uploads (import name: docx)

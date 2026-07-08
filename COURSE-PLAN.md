@@ -74,8 +74,8 @@ Deployed free on Hugging Face Spaces or Streamlit Community Cloud.
 | 16 | **CLI chatbot: conversation memory** — keep a `messages` list and append every turn (Groq, free) |
 | 17 | Embeddings fundamentals: what they are; free options (sentence-transformers, Gemini embeddings) |
 | 18 | Chroma — first vector DB: save vectors, retrieve them, chat with AI |
-| 19 | pgvector via Supabase — local Chroma → cloud Postgres (free tier) |
-| 20 | pgvector via Supabase — local Chroma → cloud Postgres (free tier) |
+| 19 | Streamlit from scratch — turn our scripts into a web app (widgets, session state, caching, chat) |
+| 20 | **Mini-Project 1: Chat With Your Documents** — Streamlit + file upload (PDF/DOCX/TXT) + Chroma RAG + Groq; also teaches file handling & Python modules |
 | 21 | Chunking strategies: fixed, recursive, semantic, parent-document |
 | 22 | Retrieval: k-NN, hybrid search (BM25 + vector) |
 | 23 | Re-ranking with sentence-transformers cross-encoders |
