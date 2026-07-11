@@ -1,0 +1,7 @@
+# Day 21 - LangChain Fundamentals (Phase 3). Install with the real CPython:
+#   pip install -r requirements.txt
+
+langchain              # core framework: prompts, LCEL runnables, parsers (LangChain 1.x)
+langchain-groq         # Groq chat model integration (ChatGroq) - needs GROQ_API_KEY
+python-dotenv          # load GROQ_API_KEY from a .env file
+# pydantic comes in via langchain-core; it's also already a course dependency (Day 8).

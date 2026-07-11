@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LangChain: Intro, Chains &amp; Agents · Day 21 · Softpro School of AI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+  :root{
+    --bg:#211f1d; --slide:#ffffff; --cream:#fbf1e6; --cream2:#fdf8f1;
+    --ink:#2c2a28; --ink-soft:#4f463f; --muted:#8a7f73; --line:#efe3d4;
+    --primary:#e8590c; --primary2:#fb8b3d; --gold:#d99000; --steel:#4e6e81; --olive:#6b8e23; --berry:#c0392b;
+    --radius:24px;
+    --shadow:0 30px 80px -20px rgba(20,12,4,.45),0 8px 24px -12px rgba(20,12,4,.3);
+    --font:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono","Cascadia Code",Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased;
+    background:radial-gradient(900px 600px at 12% 0%,#2e2a25 0%,transparent 55%),
+               radial-gradient(900px 600px at 100% 100%,#2a201a 0%,transparent 55%),var(--bg);
+    overflow:hidden}
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:clamp(12px,3vh,44px)}
+  .slide{display:none;width:min(1160px,96vw);height:min(700px,92vh);background:
+      radial-gradient(1100px 480px at 88% -12%,rgba(232,89,12,.06),transparent 60%),var(--slide);
+    border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(28px,5vw,60px);
+    overflow:hidden;position:relative;flex-direction:column;justify-content:center}
+  .slide.active{display:flex;animation:rise .5s cubic-bezier(.2,.7,.2,1)}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .slide.active>*{animation:fade .6s both}.slide.active>*:nth-child(2){animation-delay:.07s}
+  .slide.active>*:nth-child(3){animation-delay:.14s}.slide.active>*:nth-child(4){animation-delay:.21s}
+  .slide.active>*:nth-child(5){animation-delay:.28s}.slide.active>*:nth-child(6){animation-delay:.35s}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .kicker{font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--primary);margin-bottom:14px}
+  h1{font-size:clamp(2.1rem,5.2vw,3.5rem);font-weight:800;line-height:1.05;letter-spacing:-.02em}
+  h2{font-size:clamp(1.6rem,3.6vw,2.4rem);font-weight:800;line-height:1.1;letter-spacing:-.01em;margin-bottom:18px}
+  p{font-size:clamp(1rem,1.7vw,1.22rem);color:var(--ink-soft);line-height:1.6;max-width:62ch}
+  .lead{font-size:clamp(1.1rem,2vw,1.4rem)}
+  .big{font-size:clamp(2.4rem,6vw,4rem);font-weight:800;color:var(--primary);line-height:1}
+  strong{color:var(--ink)}.muted{color:var(--muted)}
+  .grid{display:grid;gap:16px;margin-top:8px}
+  .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--cream);border:1px solid var(--line);border-radius:18px;padding:18px 20px;transition:transform .2s,box-shadow .2s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 14px 30px -16px rgba(20,12,4,.35)}
+  .card h3{font-size:1.08rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .card p{font-size:.96rem;max-width:none}
+  .num{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;border-radius:9px;
+    background:var(--primary);color:#fff;font-weight:800;font-size:.95rem;margin-right:4px}
+  .emoji{font-size:1.3rem}
+  .pill{display:inline-block;background:var(--cream);border:1px solid var(--line);border-radius:999px;
+    padding:7px 16px;font-size:.92rem;font-weight:600;color:var(--ink-soft);margin:5px 6px 0 0}
+  ul.clean{list-style:none;margin-top:10px}
+  ul.clean li{font-size:clamp(1rem,1.7vw,1.18rem);color:var(--ink-soft);line-height:1.5;padding:8px 0 8px 34px;position:relative}
+  ul.clean li::before{content:"";position:absolute;left:0;top:15px;width:14px;height:14px;border-radius:50%;
+    background:var(--primary);box-shadow:0 0 0 4px rgba(232,89,12,.15)}
+  ul.clean li.x::before{background:var(--berry);box-shadow:0 0 0 4px rgba(192,57,43,.15)}
+  ul.clean li.ok::before{background:var(--olive);box-shadow:0 0 0 4px rgba(107,142,35,.15)}
+  .fx{font-family:var(--mono);font-size:1rem;background:var(--cream);border:1px solid var(--line);
+    border-radius:14px;padding:16px 18px;margin-top:10px;color:var(--ink);line-height:1.7;white-space:pre}
+  .action{background:linear-gradient(135deg,#fff,var(--cream2));border:2px solid var(--primary);
+    border-radius:20px;padding:22px 24px;margin-top:14px}
+  .action .tag{font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--primary)}
+  .action p{font-size:1.12rem;color:var(--ink);font-weight:600;margin-top:6px;max-width:none}
+  .eg{background:var(--cream2);border:1px solid var(--line);border-left:4px solid var(--gold);
+    border-radius:12px;padding:13px 16px;margin-top:14px}
+  .eg .tag{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:5px}
+  .eg p{font-size:.98rem;max-width:none;margin:0;color:var(--ink-soft)}
+  .eg .mono{font-family:var(--mono)}
+  .eg code,.card code,p code{font-family:var(--mono);background:rgba(217,144,0,.12);padding:1px 5px;border-radius:5px;font-size:.9em;color:var(--ink)}
+  .card .ex{display:block;margin-top:8px;font-family:var(--mono);font-size:.82rem;color:var(--steel);
+    background:var(--cream2);border-radius:8px;padding:6px 9px;white-space:pre-wrap;line-height:1.5}
+  .cover{background:radial-gradient(1200px 500px at 20% -10%,rgba(232,89,12,.16),transparent 60%),
+      radial-gradient(900px 500px at 100% 120%,rgba(217,144,0,.12),transparent 55%),var(--slide)}
+  .brandbar{display:flex;align-items:center;gap:10px;margin-bottom:auto}
+  .dot{width:13px;height:13px;border-radius:50%;background:var(--primary)}
+  .brandbar span{font-weight:700;letter-spacing:.02em}
+  .cover h1 em{font-style:normal;color:var(--primary)}
+  .footer-note{margin-top:auto;color:var(--muted);font-size:.95rem}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:center}
+  .label{font-size:.82rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .bar{position:fixed;top:0;left:0;height:4px;background:linear-gradient(90deg,var(--primary),var(--primary2));z-index:9;transition:width .3s}
+  .count{position:fixed;left:18px;bottom:14px;color:var(--cream);font-size:.85rem;font-weight:600;opacity:.8;z-index:9;font-variant-numeric:tabular-nums}
+  .nav{position:fixed;right:18px;bottom:14px;display:flex;gap:8px;z-index:9}
+  .nav button{width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.08);color:#fff;font-size:1.1rem;cursor:pointer;backdrop-filter:blur(8px);transition:background .2s}
+  .nav button:hover{background:rgba(255,255,255,.2)}
+  .hint{position:fixed;right:18px;top:16px;color:var(--cream);font-size:.78rem;opacity:.5;z-index:9}
+  .diagram{display:flex;justify-content:center;align-items:center;margin-top:8px}
+  .diagram svg{max-width:100%;height:auto}
+  .cap{text-align:center;color:var(--muted);font-size:.9rem;margin-top:6px}
+  .pipe{display:flex;align-items:stretch;gap:0;margin-top:14px;flex-wrap:wrap}
+  .pipe .stepbox{flex:1;min-width:120px;background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:14px 12px;text-align:center}
+  .pipe .stepbox.model{border-color:var(--primary);background:#fde7d6}
+  .pipe .stepbox h4{font-size:1rem;font-weight:800;color:var(--ink)}
+  .pipe .stepbox small{display:block;color:var(--muted);font-size:.82rem;margin-top:4px}
+  .pipe .arrow{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:800;color:var(--primary);font-size:1.5rem;padding:0 8px}
+  @media(max-width:640px){.g2,.g3,.g4,.twocol{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<div class="hint">→ / Space to advance · F for fullscreen</div>
+<div class="stage" id="stage">
+
+  <!-- 1 COVER -->
+  <section class="slide cover active">
+    <div class="brandbar"><span class="dot"></span><span>Softpro School of AI · Day 21</span></div>
+    <div class="kicker">Phase 3 · Agents &amp; Tools</div>
+    <h1>LangChain:<br>from <em>API calls</em> to <em>agents</em></h1>
+    <p class="lead" style="margin-top:18px">We can already call an LLM. But real apps need prompts reused, steps chained, data validated, memory kept — and eventually tools and <strong>agents</strong>. LangChain is the framework that makes all of that snap together.</p>
+    <div class="footer-note">One interface for any model · compose with <span style="font-family:var(--mono)">|</span> · the base for LangGraph &amp; agents.</div>
+  </section>
+
+  <!-- 2 THE PROBLEM -->
+  <section class="slide">
+    <div class="kicker">Why we need a framework</div>
+    <h2>Raw API calls don't scale into apps</h2>
+    <p>A single <code>client.chat.completions.create(...)</code> is fine for a demo. But a real product needs the <em>same</em> plumbing over and over — and you end up rewriting it by hand.</p>
+    <div class="grid g2" style="margin-top:8px">
+      <div class="card"><h3>😓 Doing it by hand</h3><p>Glue code for every prompt, provider locked in, JSON parsed manually, memory re-invented, no shared way to add tools.</p></div>
+      <div class="card"><h3>🧩 With a framework</h3><p>Reusable prompts, one interface for any model, typed outputs, built-in memory &amp; retrieval, and a standard path to <strong>tools + agents</strong>.</p></div>
+    </div>
+    <div class="eg">
+      <span class="tag">The shift</span>
+      <p>Stop writing <em>plumbing</em>, start writing <em>logic</em>. LangChain gives every LLM the same shape so the pieces above yours all compose.</p>
+    </div>
+  </section>
+
+  <!-- 3 WHAT IS LANGCHAIN -->
+  <section class="slide">
+    <div class="kicker">The one big idea</div>
+    <h2>LangChain = one interface + composable pieces</h2>
+    <p>Every component — a model, a prompt, a parser, a retriever, a tool — is a <strong>Runnable</strong>: it has <code>.invoke()</code> and snaps to the next piece with the <code>|</code> operator.</p>
+    <div class="action">
+      <span class="tag">Remember this one line</span>
+      <p>Build messages &rarr; <span style="font-family:var(--mono)">invoke</span> &rarr; get a reply. Same shape for every model, every step.</p>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card"><h3>🧱 langchain-core</h3><p>The base types: messages, prompts, runnables, parsers.</p></div>
+      <div class="card"><h3>🔌 integrations</h3><p><code>langchain-groq</code>, <code>-openai</code>, <code>-ollama</code>… one class per provider.</p></div>
+      <div class="card"><h3>🕸️ langgraph</h3><p>For stateful agents — loops &amp; branching (coming up).</p></div>
+    </div>
+  </section>
+
+  <!-- 4 WHY IT'S USED -->
+  <section class="slide">
+    <div class="kicker">Why teams reach for it</div>
+    <h2>Four reasons LangChain is everywhere</h2>
+    <div class="grid g4" style="margin-top:8px">
+      <div class="card"><h3>🔁 Swap models</h3><p>Groq today, OpenAI or a local model tomorrow — change <strong>one line</strong>, keep the rest.</p></div>
+      <div class="card"><h3>➗ Compose</h3><p><strong>LCEL</strong>: <code>prompt | model | parser</code>. Batching, streaming, async — free.</p></div>
+      <div class="card"><h3>🔋 Batteries</h3><p>Prompts, parsers, memory, retrievers, <strong>tools &amp; agents</strong> — already built.</p></div>
+      <div class="card"><h3>🌍 Ecosystem</h3><p>Huge community, hundreds of integrations, the base LangGraph builds on.</p></div>
+    </div>
+    <div class="eg">
+      <span class="tag">The honest caveat</span>
+      <p>It's an abstraction — worth it when apps grow. For a one-off script, a raw call is fine. We learn <em>both</em> so you know when to use which.</p>
+    </div>
+  </section>
+
+  <!-- 5 BUILDING BLOCKS -->
+  <section class="slide">
+    <div class="kicker">Today's building blocks</div>
+    <h2>The five pieces you'll use daily</h2>
+    <div class="grid g3">
+      <div class="card"><h3>🤖 Chat model</h3><p><code>ChatGroq</code> — the LLM, behind one interface. <span class="ex">model.invoke(messages)</span></p></div>
+      <div class="card"><h3>📝 Prompt template</h3><p>Reusable prompt with <code>{blanks}</code>. <span class="ex">ChatPromptTemplate.from_messages(...)</span></p></div>
+      <div class="card"><h3>🔗 LCEL chain</h3><p>Pieces joined with <code>|</code>. <span class="ex">prompt | model | parser</span></p></div>
+      <div class="card"><h3>📦 Output parser</h3><p>Reply &rarr; clean text or typed data. <span class="ex">with_structured_output(Model)</span></p></div>
+      <div class="card"><h3>🧠 Memory</h3><p>Carry the conversation. <span class="ex">MessagesPlaceholder("history")</span></p></div>
+      <div class="card"><h3>🛠️ Tools &amp; agents</h3><p>Let the model <em>act</em> (next days). <span class="ex">@tool · create_agent</span></p></div>
+    </div>
+  </section>
+
+  <!-- 6 LCEL -->
+  <section class="slide">
+    <div class="kicker">The core · LCEL</div>
+    <h2>Chaining with the <span style="font-family:var(--mono)">|</span> operator</h2>
+    <p>LCEL ("LangChain Expression Language") is one rule: <strong>the output of the left flows into the right.</strong> Read it left to right.</p>
+    <div class="pipe">
+      <div class="stepbox"><h4>prompt</h4><small>fill the blanks</small></div>
+      <div class="arrow">|</div>
+      <div class="stepbox model"><h4>model</h4><small>the LLM answers</small></div>
+      <div class="arrow">|</div>
+      <div class="stepbox"><h4>parser</h4><small>clean text / data</small></div>
+    </div>
+    <div class="fx" style="margin-top:16px">chain = prompt | model | parser
+chain.invoke({"question": "What is Python?"})   # -&gt; a clean string</div>
+    <p class="cap">Same chain also gives you <code>.batch([...])</code> (many at once) and <code>.stream(...)</code> (live typing) for free.</p>
+  </section>
+
+  <!-- 7 PROMPTS + PARSERS -->
+  <section class="slide">
+    <div class="kicker">Reuse &amp; structure</div>
+    <h2>Templates in, typed data out</h2>
+    <div class="twocol">
+      <div>
+        <div class="label">Prompt template — write once, reuse</div>
+        <div class="fx">prompt = ChatPromptTemplate.from_messages([
+  ("system", "Translate into {language}."),
+  ("human", "{text}"),
+])</div>
+      </div>
+      <div>
+        <div class="label">Structured output — real objects</div>
+        <div class="fx">class Movie(BaseModel):
+    title: str
+    rating: int
+
+model.with_structured_output(Movie)</div>
+      </div>
+    </div>
+    <div class="eg">
+      <span class="tag">Why it matters</span>
+      <p>Templates keep roles &amp; catch missing variables; <code>with_structured_output</code> returns a <strong>validated Pydantic object</strong> — no fragile JSON parsing. Text for humans, data for your code.</p>
+    </div>
+  </section>
+
+  <!-- 8 MEMORY -->
+  <section class="slide">
+    <div class="kicker">Conversation memory</div>
+    <h2>Remembering the chat</h2>
+    <p>An LLM is stateless — it forgets. You carry a <strong>history</strong> list and inject it into the prompt with a placeholder, so each call sees the whole conversation (Day 16, now in LangChain form).</p>
+    <div class="fx">prompt = ChatPromptTemplate.from_messages([
+  ("system", "You are helpful."),
+  MessagesPlaceholder("history"),   # <-- past turns land here
+  ("human", "{input}"),
+])
+# after each turn: history.append(HumanMessage(...)); history.append(AIMessage(...))</div>
+    <div class="eg">
+      <span class="tag">Latest-syntax note</span>
+      <p><code>RunnableWithMessageHistory</code> is <strong>deprecated</strong> in LangChain 1.x. For simple chat, keep the list yourself; for heavier state, that job moves to <strong>LangGraph</strong>.</p>
+    </div>
+  </section>
+
+  <!-- 9 WHAT IS AN AGENT -->
+  <section class="slide">
+    <div class="kicker">The big leap</div>
+    <h2>From a chain to an <em style="color:var(--primary);font-style:normal">agent</em></h2>
+    <p>A <strong>chain</strong> runs a fixed path you wrote. An <strong>agent</strong> lets the <em>model</em> decide what to do next — which <strong>tool</strong> to call, and when it's done. It's an LLM in a loop with tools.</p>
+    <div class="grid g2" style="margin-top:8px">
+      <div class="card"><h3>🔗 Chain</h3><p>You fixed the steps: <code>prompt → model → parser</code>. Predictable, no decisions.</p></div>
+      <div class="card"><h3>🕹️ Agent</h3><p>The model picks steps: <em>"I need to search… now calculate… now answer."</em> Dynamic, tool-using.</p></div>
+    </div>
+    <div class="action">
+      <span class="tag">Definition to remember</span>
+      <p>Agent = <strong>LLM + tools + a loop</strong> that keeps going until the task is done.</p>
+    </div>
+  </section>
+
+  <!-- 10 REACT LOOP -->
+  <section class="slide">
+    <div class="kicker">How an agent thinks</div>
+    <h2>The reason–act loop</h2>
+    <div class="diagram" style="margin-top:6px">
+      <svg viewBox="0 0 820 300" width="820" height="300" role="img" aria-label="Agent loop: think, act with a tool, observe, repeat, then answer">
+        <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8a7f73"/></marker></defs>
+        <g font-family="Plus Jakarta Sans" font-size="15" font-weight="700" text-anchor="middle">
+          <!-- nodes -->
+          <rect x="60" y="120" width="150" height="60" rx="14" fill="#fde7d6" stroke="#e8590c"/><text x="135" y="146" fill="#e8590c">🧠 Think</text><text x="135" y="166" font-size="11" font-weight="500" fill="#8a7f73">what do I do next?</text>
+          <rect x="335" y="40" width="150" height="60" rx="14" fill="#eef3f1" stroke="#6b8e23"/><text x="410" y="66" fill="#3f5a18">🛠️ Act</text><text x="410" y="86" font-size="11" font-weight="500" fill="#8a7f73">call a tool</text>
+          <rect x="335" y="200" width="150" height="60" rx="14" fill="#fbf1e6" stroke="#efe3d4"/><text x="410" y="226" fill="#2c2a28">👀 Observe</text><text x="410" y="246" font-size="11" font-weight="500" fill="#8a7f73">read the result</text>
+          <rect x="620" y="120" width="150" height="60" rx="14" fill="#fde7d6" stroke="#e8590c"/><text x="695" y="146" fill="#e8590c">✅ Answer</text><text x="695" y="166" font-size="11" font-weight="500" fill="#8a7f73">task done</text>
+          <!-- arrows -->
+          <path d="M195 128 Q 250 70 330 66" fill="none" stroke="#8a7f73" stroke-width="2" marker-end="url(#ar)"/>
+          <path d="M410 100 L 410 196" fill="none" stroke="#8a7f73" stroke-width="2" marker-end="url(#ar)"/>
+          <path d="M330 232 Q 250 232 200 172" fill="none" stroke="#8a7f73" stroke-width="2" marker-end="url(#ar)"/>
+          <path d="M210 150 L 616 150" fill="none" stroke="#e8590c" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#ar)"/>
+          <text x="415" y="140" font-size="12" font-weight="600" fill="#e8590c">when confident &rarr; stop looping</text>
+        </g>
+      </svg>
+    </div>
+    <p class="cap">Think &rarr; Act &rarr; Observe, over and over, until the model decides it can Answer. This is the <strong>ReAct</strong> pattern.</p>
+  </section>
+
+  <!-- 11 TOOLS -->
+  <section class="slide">
+    <div class="kicker">What agents act with</div>
+    <h2>Tools: giving the model hands</h2>
+    <p>A <strong>tool</strong> is just a Python function the model is allowed to call. You describe it; the model decides <em>when</em> to use it and with what arguments.</p>
+    <div class="fx">from langchain_core.tools import tool
+
+@tool
+def get_weather(city: str) -> str:
+    """Get the current weather for a city."""   # <- the model reads this
+    return lookup(city)
+
+model.bind_tools([get_weather])   # now the model can request it</div>
+    <div class="eg">
+      <span class="tag">The docstring is the API</span>
+      <p>The function name, type hints, and <em>docstring</em> are how the model knows what the tool does and how to call it. Clear docstrings = reliable tool use.</p>
+    </div>
+  </section>
+
+  <!-- 12 LANGGRAPH -->
+  <section class="slide">
+    <div class="kicker">When a chain isn't enough</div>
+    <h2>Chains are lines; agents need <em style="color:var(--primary);font-style:normal">graphs</em></h2>
+    <p>A straight <code>|</code> chain can't loop or branch. Once you need "keep calling tools until done", you need a <strong>state machine</strong> — that's <strong>LangGraph</strong>.</p>
+    <div class="grid g2" style="margin-top:8px">
+      <div class="card"><h3>➡️ LCEL chain</h3><p>A fixed line of steps. Perfect for prompt&rarr;model&rarr;parser and RAG. No loops.</p></div>
+      <div class="card"><h3>🔄 LangGraph</h3><p>Nodes + edges with <strong>state</strong>. Loops, branches, tool cycles, persistence. The runtime real agents run on.</p></div>
+    </div>
+    <div class="eg">
+      <span class="tag">In LangChain 1.x</span>
+      <p>Agents are built with <code>create_agent</code> and run on LangGraph under the hood. Simple flow &rarr; a chain. Stateful, tool-looping agent &rarr; LangGraph. That's Day 22.</p>
+    </div>
+  </section>
+
+  <!-- 13 WHERE THIS GOES (ROADMAP) -->
+  <section class="slide">
+    <div class="kicker">The road ahead · Phase 3</div>
+    <h2>Today unlocks the whole phase</h2>
+    <div class="diagram" style="margin-top:6px">
+      <svg viewBox="0 0 860 150" width="860" height="150" role="img" aria-label="Phase 3 roadmap from LangChain to agents">
+        <defs><marker id="ar2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#8a7f73"/></marker></defs>
+        <g font-family="Plus Jakarta Sans" font-size="13" font-weight="700" text-anchor="middle">
+          <rect x="20" y="55" width="150" height="48" rx="12" fill="#fde7d6" stroke="#e8590c"/><text x="95" y="84" fill="#e8590c">Day 21 · LangChain</text>
+          <rect x="215" y="55" width="150" height="48" rx="12" fill="#fbf1e6" stroke="#efe3d4"/><text x="290" y="84" fill="#2c2a28">Day 22 · LangGraph</text>
+          <rect x="410" y="55" width="150" height="48" rx="12" fill="#fbf1e6" stroke="#efe3d4"/><text x="485" y="84" fill="#2c2a28">Day 23 · Tools</text>
+          <rect x="605" y="55" width="150" height="48" rx="12" fill="#eef3f1" stroke="#6b8e23"/><text x="680" y="84" fill="#3f5a18">Day 24 · ReAct Agent</text>
+          <line x1="170" y1="79" x2="211" y2="79" stroke="#8a7f73" stroke-width="2" marker-end="url(#ar2)"/>
+          <line x1="365" y1="79" x2="406" y2="79" stroke="#8a7f73" stroke-width="2" marker-end="url(#ar2)"/>
+          <line x1="560" y1="79" x2="601" y2="79" stroke="#8a7f73" stroke-width="2" marker-end="url(#ar2)"/>
+        </g>
+      </svg>
+    </div>
+    <p class="cap">Then CrewAI, AutoGen, observability &amp; guardrails &rarr; <strong>Mini-project 3: a Research Agent</strong>. It all stands on the <code>invoke</code> + <code>|</code> you learn today.</p>
+  </section>
+
+  <!-- 14 RECAP -->
+  <section class="slide">
+    <div class="kicker">Recap</div>
+    <h2>Five things to walk away with</h2>
+    <ul class="clean">
+      <li><strong>LangChain</strong> = one interface for any model + composable pieces.</li>
+      <li><strong>LCEL</strong>: <code>prompt | model | parser</code> — output flows left to right.</li>
+      <li>Get <strong>typed data</strong> with <code>with_structured_output</code>; keep <strong>memory</strong> with <code>MessagesPlaceholder</code>.</li>
+      <li>An <strong>agent</strong> = LLM + tools + a loop (Think &rarr; Act &rarr; Observe).</li>
+      <li>Chains are lines; stateful, tool-looping agents run on <strong>LangGraph</strong>.</li>
+    </ul>
+  </section>
+
+  <!-- 15 YOUR MOVE -->
+  <section class="slide">
+    <div class="kicker">Your move today</div>
+    <h2>Run the modules, then the exercises</h2>
+    <div class="action">
+      <span class="tag">⏱ Practice now</span>
+      <p>Work through <code>01 &rarr; 06</code> in order (they run with no key!), then <code>exercises/</code>: build a <strong>translator chain</strong> and a <strong>structured extractor</strong>.</p>
+    </div>
+    <div style="margin-top:16px">
+      <span class="pill">01 · why langchain</span><span class="pill">02 · prompt templates</span><span class="pill">03 · LCEL chains</span><span class="pill">04 · output parsers</span><span class="pill">05 · runnables</span><span class="pill">06 · memory</span>
+    </div>
+  </section>
+
+  <!-- 16 CLOSE -->
+  <section class="slide cover">
+    <div class="brandbar"><span class="dot"></span><span>Softpro School of AI · Day 21</span></div>
+    <h1>Learn <em>invoke</em> and <em>|</em>,<br>and everything composes.</h1>
+    <p class="lead" style="margin-top:18px">Prompts, models, parsers, memory, tools, agents — one interface, one operator. That's the foundation the rest of Phase 3 turns into agents that <em>act</em>.</p>
+    <div class="footer-note">Next (Day 22): LangGraph — state machines for AI, and the runtime real agents run on.</div>
+  </section>
+
+</div>
+
+<div class="count" id="count">1 / 16</div>
+<div class="nav"><button id="prev" aria-label="Previous">‹</button><button id="full" aria-label="Fullscreen">⛶</button><button id="next" aria-label="Next">›</button></div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];let i=0;
+  const bar=document.getElementById('bar'),count=document.getElementById('count');
+  function show(n){i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    bar.style.width=((i+1)/slides.length*100)+'%';count.textContent=(i+1)+' / '+slides.length;}
+  function next(){show(i+1)}function prev(){show(i-1)}
+  document.getElementById('next').onclick=next;document.getElementById('prev').onclick=prev;
+  document.getElementById('full').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key===' ')next();
+    else if(e.key==='ArrowLeft')prev();
+    else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+    else if(e.key==='f'||e.key==='F')document.getElementById('full').click();});
+  document.getElementById('stage').addEventListener('click',e=>{
+    if(e.target.closest('.nav'))return;const x=e.clientX/window.innerWidth;x>0.5?next():prev();});
+  show(0);
+</script>
+</body>
+</html>

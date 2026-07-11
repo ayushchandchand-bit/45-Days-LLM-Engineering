@@ -66,7 +66,7 @@ Deployed free on Hugging Face Spaces or Streamlit Community Cloud.
 
 ---
 
-## Phase 2 — RAG & Memory (Days 16–26)
+## Phase 2 — RAG & Memory (Days 16–20)
 *Goal: apps that use external knowledge — the single most employable AI skill right now.*
 
 | Day | Topic |
@@ -76,40 +76,43 @@ Deployed free on Hugging Face Spaces or Streamlit Community Cloud.
 | 18 | Chroma — first vector DB: save vectors, retrieve them, chat with AI |
 | 19 | Streamlit from scratch — turn our scripts into a web app (widgets, session state, caching, chat) |
 | 20 | **Mini-Project 1: Chat With Your Documents** — Streamlit + file upload (PDF/DOCX/TXT) + Chroma RAG + Groq; also teaches file handling & Python modules |
-| 21 | Chunking strategies: fixed, recursive, semantic, parent-document |
-| 22 | Retrieval: k-NN, hybrid search (BM25 + vector) |
-| 23 | Re-ranking with sentence-transformers cross-encoders |
-| 24 | LlamaIndex introduction — when it beats raw code |
-| 25 | **Mini-project 2 build day** |
-| 26 | **Mini-project 2 deploy + demo** |
 
-**🚀 Project 2 — Document Q&A System.** Input: upload notes / textbooks / papers. Output:
-natural-language questions → cited answers. Stack: Streamlit + Chroma or pgvector + Groq +
-LlamaIndex. Deployed free on HF Spaces.
+**🚀 Project 1 — Chat With Your Documents (Day 20).** Upload notes / textbooks / papers → ask
+questions → cited answers, grounded in your files. Stack: Streamlit + Chroma + `sentence-transformers`
++ Groq.
+
+> **Plan change (2026-07):** the original RAG deep-dive days (chunking / hybrid retrieval / re-ranking
+> / LlamaIndex / Mini-project 2) are **deferred**. We pivot straight into the **agent frameworks**
+> track — LangChain → LangGraph → agents — which now begins at **Day 21** as Phase 3. The dropped RAG
+> topics may return later as optional deep-dives.
 
 ---
 
-## Phase 3 — Agents & Tools (Days 27–38)
-*Goal: go from Q&A bots to agents that take actions — the differentiator.*
+## Phase 3 — Agents & Tools (Days 21–31)
+*Goal: go from Q&A bots to agents that take actions — the differentiator. We start with the
+framework everything else builds on (LangChain), then LangGraph, then real agents.*
 
 | Day | Topic |
 |----:|-------|
-| 27 | Tool use / function calling — first principles, no framework |
-| 28 | LangChain basics — chains, memory, the 20% you actually need |
-| 29 | LangGraph — state machines for AI, when it makes sense |
-| 30 | Building a ReAct agent with LangChain (research + summarize tool) |
-| 31 | CrewAI — role-based multi-agent, made simple |
-| 32 | AutoGen (Microsoft) — conversation-based multi-agent |
-| 33 | OpenClaw — lightweight agentic framework |
-| 34 | Framework comparison workshop — same agent in 3 frameworks, pick which fits |
-| 35 | Observability: Langfuse — tracing an agent, debugging failures |
-| 36 | Guardrails & safety: prompt-injection defense, output validation |
-| 37 | **Mini-project 3 build day** |
-| 38 | **Mini-project 3 deploy + demo** |
+| 21 | **LangChain fundamentals** — chat models, prompt templates, LCEL (`prompt \| model \| parser`), output parsers, runnables, memory (LangChain 1.x) ✅ |
+| 22 | LangGraph — state machines for AI: loops, branching, when a straight chain isn't enough |
+| 23 | Tool use / function calling — giving a model tools (`@tool`, `bind_tools`), first principles |
+| 24 | Building a ReAct agent (`create_agent`) — research + summarize tools |
+| 25 | CrewAI — role-based multi-agent, made simple |
+| 26 | AutoGen (Microsoft) — conversation-based multi-agent |
+| 27 | Framework comparison workshop — same agent in 3 frameworks, pick which fits |
+| 28 | Observability: Langfuse — tracing an agent, debugging failures |
+| 29 | Guardrails & safety: prompt-injection defense, output validation |
+| 30 | **Mini-project 3 build day** |
+| 31 | **Mini-project 3 deploy + demo** |
 
 **🚀 Project 3 — Personal Research Agent.** Researches a topic across the web, takes notes,
 produces a briefing. Student picks the framework (LangGraph / CrewAI / AutoGen). Must use 3+
 tools. Traced in Langfuse. Deployed free.
+
+> **Numbering note (2026-07):** Phase 3 was pulled forward to Day 21 (see the Phase 2 plan-change
+> note). Phase 4's day numbers below still reflect the old schedule and will be reconciled in a
+> later pass; treat Phase 4 as "after Phase 3", not as fixed dates.
 
 ---
 
