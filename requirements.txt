@@ -30,3 +30,8 @@ streamlit                  # turn a Python script into a web app: `streamlit run
 pypdf                      # read text from .pdf uploads
 python-docx                # read text from .docx uploads (note: pip name python-docx, import name docx)
 # reuses streamlit + chromadb + sentence-transformers + groq + python-dotenv (all listed above)
+
+# --- Phase 3 · Day 21 — LangChain Fundamentals ---
+langchain                  # the framework: prompts, LCEL (prompt | model | parser), parsers (v1.x)
+langchain-groq             # ChatGroq — LangChain's Groq integration (reuses GROQ_API_KEY)
+# reuses pydantic + python-dotenv (already listed above)
