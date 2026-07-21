@@ -102,3 +102,6 @@ proper engine for loops and branching; on **Day 25** `create_agent` builds this 
 one line — a **ReAct agent**. You're seeing, by hand, what those tools automate.
 
 ➡ Back to the [day overview](../README.md) · Then do the [exercises](../exercises/README.md).
+
+*Teaching this live? There's a minute-by-minute [`TRAINERS-GUIDE.md`](TRAINERS-GUIDE.md) for
+building the whole project with a class from the starter kit.*
